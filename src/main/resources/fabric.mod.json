@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "hitboxplus",
+  "version": "${version}",
+
+  "name": "HitBox+",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "PingIsFun"
+  ],
+  "contact": {
+  },
+
+  "license": "MIT",
+
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "io.github.pingisfun.hitboxplus.ExampleMod"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "minecraft": "~1.19",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
