@@ -16,7 +16,10 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "io.github.pingisfun.hitboxplus.ExampleMod"
+      "io.github.pingisfun.hitboxplus.HitboxPlus"
+    ],
+    "modmenu": [
+      "io.github.pingisfun.hitboxplus.integration.ModMenuIntegration"
     ]
   },
   "mixins": [
