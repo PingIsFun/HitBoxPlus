@@ -16,11 +16,11 @@ public class ColorUtil {
 
         if (entity instanceof PlayerEntity) {
             if (entity instanceof ClientPlayerEntity) {
-                return ColorUtil.decode(config.players.self_color, config.players.self_alpha);
+                return ColorUtil.decode(config.players.self.color, config.players.self.alpha);
             }
 
             else if (entity instanceof OtherClientPlayerEntity) {
-                return ColorUtil.decode(config.players.neutral_color, config.players.neutral_alpha);
+
             }
         }
 
