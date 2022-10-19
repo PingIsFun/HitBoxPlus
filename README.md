@@ -1,14 +1,10 @@
 # HitBox+
 
----
-
 A mod that allows you to change the color of hitboxes.
 
 ![showcase](assets/readme/showcase.png)
 
 ## Features
-
----
 
 ### Separate configs for different entity types
 
