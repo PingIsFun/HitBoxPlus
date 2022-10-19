@@ -6,13 +6,14 @@ A mod that allows you to change the color of hitboxes.
 
 ## Features
 
+### Friend and Enemy color
+
+![player config](assets/readme/player_config.png)
+
 ### Separate configs for different entity types
 
 ![entity config](assets/readme/entity_config.png)
 
-### Friend and Enemy color
-
-![player config](assets/readme/player_config.png)
 
 # Dependencies
 
