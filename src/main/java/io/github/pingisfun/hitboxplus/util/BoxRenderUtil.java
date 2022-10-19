@@ -1,6 +1,8 @@
 package io.github.pingisfun.hitboxplus.util;
 
 import io.github.pingisfun.hitboxplus.HitboxPlus;
+import io.github.pingisfun.hitboxplus.ModConfig;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -18,6 +20,11 @@ public class BoxRenderUtil {
         float green = 256 - hitbox_color.getGreen();
         float blue = 256 - hitbox_color.getBlue();
         float alpha = hitbox_color.getAlpha();
+
+        if (alpha == 250.0) {
+            // Prevent weird invisible hitboixes
+            return;
+        }
 
         WorldRenderer.drawBox(matrices, vertices, box, red, green, blue, alpha);
     }

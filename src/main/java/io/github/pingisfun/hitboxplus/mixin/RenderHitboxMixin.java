@@ -1,5 +1,6 @@
 package io.github.pingisfun.hitboxplus.mixin;
 
+import io.github.pingisfun.hitboxplus.HitboxPlus;
 import io.github.pingisfun.hitboxplus.ModConfig;
 import io.github.pingisfun.hitboxplus.util.BoxRenderUtil;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -16,13 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class RenderHitboxMixin {
 	@Inject(at = @At("HEAD"), method = "renderHitbox", cancellable = true)
 	private static void renderHitbox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, CallbackInfo ci) {
-//		ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
-		System.out.println("-------");
-		System.out.println("-------");
-		System.out.println("-------");
-		BoxRenderUtil.drawBox(matrices, vertices, entity);
-		ci.cancel();
-//		if (config.isModEnabled) {
-//		}
+		ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+		if (config.isModEnabled) {
+			BoxRenderUtil.drawBox(matrices, vertices, entity);
+			ci.cancel();
+		}
 	}
 }

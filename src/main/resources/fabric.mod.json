@@ -9,6 +9,8 @@
     "PingIsFun"
   ],
   "contact": {
+    "sources": "https://github.com/PingIsFun/HitBoxPlus",
+    "issues": "https://github.com/PingIsFun/HitBoxPlus/issues"
   },
 
   "license": "MIT",
@@ -31,7 +33,9 @@
     "minecraft": "~1.19",
     "java": ">=17"
   },
-  "suggests": {
-    "another-mod": "*"
+
+  "recommends": {
+    "cloth-config": "~8.2",
+    "modmenu": "~4.0"
   }
 }
