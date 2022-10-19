@@ -23,48 +23,47 @@ public class ColorUtil {
     public static Color getEntityColor(Entity entity) {
         ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
-        if (entity instanceof PlayerEntity && config.player.isEnabled) {
+        if (entity instanceof PlayerEntity && config.isPlayerConfigEnabled) {
             if (entity instanceof ClientPlayerEntity) {
-                return ColorUtil.decode(config.player.self.color, config.player.self.alpha);
+                return ColorUtil.decode(config.self.color, config.self.alpha);
             } else if (entity instanceof OtherClientPlayerEntity) {
                 String username = entity.getName().getString();
-                if (config.player.friend.list.contains((username))) {
-                    return ColorUtil.decode(config.player.friend.color, config.player.friend.alpha);
-                } else if (config.player.enemy.list.contains((username))) {
-                    return ColorUtil.decode(config.player.enemy.color, config.player.enemy.alpha);
+                if (config.friend.list.contains((username))) {
+                    return ColorUtil.decode(config.friend.color, config.friend.alpha);
+                } else if (config.enemy.list.contains((username))) {
+                    return ColorUtil.decode(config.enemy.color, config.enemy.alpha);
                 } else {
-                    return ColorUtil.decode(config.player.neutral.color, config.player.neutral.alpha);
+                    return ColorUtil.decode(config.neutral.color, config.neutral.alpha);
                 }
             }
-        } else if (entity instanceof HostileEntity && config.entity.hostile.isEnabled) {
-            return ColorUtil.decode(config.entity.hostile.color, config.entity.hostile.alpha);
-        } else if ((entity instanceof PassiveEntity || entity instanceof AllayEntity || entity instanceof BatEntity) && config.entity.passive.isEnabled) {
-            return ColorUtil.decode(config.entity.passive.color, config.entity.passive.alpha);
-        } else if ((entity instanceof ProjectileEntity) && config.entity.projectile.isEnabled) {
-            return ColorUtil.decode(config.entity.projectile.color, config.entity.projectile.alpha);
-        } else if ((entity instanceof AbstractDecorationEntity || entity instanceof ArmorStandEntity) && config.entity.decoration.isEnabled) {
-            return ColorUtil.decode(config.entity.decoration.color, config.entity.decoration.alpha);
-        } else if ((entity instanceof AbstractMinecartEntity || entity instanceof BoatEntity) && config.entity.vehicle.isEnabled) {
-            return ColorUtil.decode(config.entity.vehicle.color, config.entity.vehicle.alpha);
-        } else if (isMiscEntity(entity) && config.entity.misc.isEnabled) {
+        } else if (entity instanceof HostileEntity && config.hostile.isEnabled) {
+            return ColorUtil.decode(config.hostile.color, config.hostile.alpha);
+        } else if ((entity instanceof PassiveEntity || entity instanceof AllayEntity || entity instanceof BatEntity) && config.passive.isEnabled) {
+            return ColorUtil.decode(config.passive.color, config.passive.alpha);
+        } else if ((entity instanceof ProjectileEntity) && config.projectile.isEnabled) {
+            return ColorUtil.decode(config.projectile.color, config.projectile.alpha);
+        } else if ((entity instanceof AbstractDecorationEntity || entity instanceof ArmorStandEntity) && config.decoration.isEnabled) {
+            return ColorUtil.decode(config.decoration.color, config.decoration.alpha);
+        } else if ((entity instanceof AbstractMinecartEntity || entity instanceof BoatEntity) && config.vehicle.isEnabled) {
+            return ColorUtil.decode(config.vehicle.color, config.vehicle.alpha);
+        } else if (isMiscEntity(entity) && config.misc.isEnabled) {
             if (entity instanceof AreaEffectCloudEntity) {
-                return ColorUtil.decode(config.entity.misc.areaEffectCloud.color, config.entity.misc.areaEffectCloud.alpha);
+                return ColorUtil.decode(config.misc.areaEffectCloud.color, config.misc.areaEffectCloud.alpha);
             } else if (entity instanceof ExperienceOrbEntity) {
-                return ColorUtil.decode(config.entity.misc.experienceOrb.color, config.entity.misc.experienceOrb.alpha);
+                return ColorUtil.decode(config.misc.experienceOrb.color, config.misc.experienceOrb.alpha);
             } else if (entity instanceof EyeOfEnderEntity) {
-                return ColorUtil.decode(config.entity.misc.eyeOfEnder.color, config.entity.misc.eyeOfEnder.alpha);
+                return ColorUtil.decode(config.misc.eyeOfEnder.color, config.misc.eyeOfEnder.alpha);
             } else if (entity instanceof FallingBlockEntity) {
-                return ColorUtil.decode(config.entity.misc.fallingBlock.color, config.entity.misc.fallingBlock.alpha);
+                return ColorUtil.decode(config.misc.fallingBlock.color, config.misc.fallingBlock.alpha);
             } else if (entity instanceof ItemEntity) {
-                return ColorUtil.decode(config.entity.misc.item.color, config.entity.misc.item.alpha);
+                return ColorUtil.decode(config.misc.item.color, config.misc.item.alpha);
             } else if (entity instanceof TntEntity) {
-                return ColorUtil.decode(config.entity.misc.tnt.color, config.entity.misc.tnt.alpha);
+                return ColorUtil.decode(config.misc.tnt.color, config.misc.tnt.alpha);
             } else if (entity instanceof EndCrystalEntity) {
-                return ColorUtil.decode(config.entity.misc.endCrystalEntity.color, config.entity.misc.endCrystalEntity.alpha);
+                return ColorUtil.decode(config.misc.endCrystalEntity.color, config.misc.endCrystalEntity.alpha);
             }
 
         }
-
 
         return ColorUtil.decode(config.color, config.alpha);
     }
@@ -82,7 +81,7 @@ public class ColorUtil {
     }
 
     private static boolean isMiscEntity(Entity entity) {
-        return entity instanceof AreaEffectCloudEntity || entity instanceof ExperienceOrbEntity || entity instanceof EyeOfEnderEntity || entity instanceof FallingBlockEntity || entity instanceof ItemEntity || entity instanceof TntEntity;
+        return entity instanceof AreaEffectCloudEntity || entity instanceof ExperienceOrbEntity || entity instanceof EyeOfEnderEntity || entity instanceof FallingBlockEntity || entity instanceof ItemEntity || entity instanceof TntEntity || entity instanceof EndCrystalEntity;
 
     }
 }
