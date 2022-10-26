@@ -35,25 +35,40 @@
   "text.autoconfig.hitboxplus.option.passive.isEnabled": "Enabled",
   "text.autoconfig.hitboxplus.option.passive.color": "Color",
   "text.autoconfig.hitboxplus.option.passive.alpha": "Transparency",
+
   "text.autoconfig.hitboxplus.option.hostile": "§f§l Hostile",
   "text.autoconfig.hitboxplus.option.hostile.isEnabled": "Enabled",
   "text.autoconfig.hitboxplus.option.hostile.color": "Color",
   "text.autoconfig.hitboxplus.option.hostile.alpha": "Transparency",
+
   "text.autoconfig.hitboxplus.option.decoration": "§f§l Decoration",
   "text.autoconfig.hitboxplus.option.decoration.isEnabled": "Enabled",
   "text.autoconfig.hitboxplus.option.decoration.color": "Color",
   "text.autoconfig.hitboxplus.option.decoration.alpha": "Transparency",
+
   "text.autoconfig.hitboxplus.option.projectile": "§f§l Projectile",
   "text.autoconfig.hitboxplus.option.projectile.isEnabled": "Enabled",
   "text.autoconfig.hitboxplus.option.projectile.color": "Color",
   "text.autoconfig.hitboxplus.option.projectile.alpha": "Transparency",
+
   "text.autoconfig.hitboxplus.option.vehicle": "§f§l Vehicle",
   "text.autoconfig.hitboxplus.option.vehicle.isEnabled": "Enabled",
   "text.autoconfig.hitboxplus.option.vehicle.color": "Color",
   "text.autoconfig.hitboxplus.option.vehicle.alpha": "Transparency",
+
+  "text.autoconfig.hitboxplus.option.ender_dragon": "§f§l Ender Dragon",
+  "text.autoconfig.hitboxplus.option.ender_dragon.isEnabled": "Enabled",
+  "text.autoconfig.hitboxplus.option.ender_dragon.realHitbox": "Body Parts Enabled",
+  "text.autoconfig.hitboxplus.option.ender_dragon.boxHitbox": "Box Enabled",
+  "text.autoconfig.hitboxplus.option.ender_dragon.color.@PrefixText": "§a§lBox",
+  "text.autoconfig.hitboxplus.option.ender_dragon.color": "Color",
+  "text.autoconfig.hitboxplus.option.ender_dragon.alpha": "Alpha",
+  "text.autoconfig.hitboxplus.option.ender_dragon.part_color.@PrefixText": "§a§lBody Part",
+  "text.autoconfig.hitboxplus.option.ender_dragon.part_color": "Color",
+  "text.autoconfig.hitboxplus.option.ender_dragon.part_alpha": "Alpha",
+
   "text.autoconfig.hitboxplus.option.misc": "§f§l Miscellaneous",
   "text.autoconfig.hitboxplus.option.misc.isEnabled": "Enabled",
-
   "text.autoconfig.hitboxplus.option.misc.areaEffectCloud": "§fArea Effect Cloud",
   "text.autoconfig.hitboxplus.option.misc.areaEffectCloud.color": "Color",
   "text.autoconfig.hitboxplus.option.misc.areaEffectCloud.alpha": "Transparency",

@@ -5,6 +5,7 @@ import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.*;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
@@ -36,6 +37,8 @@ public class ColorUtil {
                     return ColorUtil.decode(config.neutral.color, config.neutral.alpha);
                 }
             }
+        } else if (entity instanceof EnderDragonEntity && config.ender_dragon.isEnabled && config.ender_dragon.boxHitbox) {
+            return ColorUtil.decode(config.ender_dragon.color, config.ender_dragon.alpha);
         } else if (entity instanceof HostileEntity && config.hostile.isEnabled) {
             return ColorUtil.decode(config.hostile.color, config.hostile.alpha);
         } else if ((entity instanceof PassiveEntity || entity instanceof AllayEntity || entity instanceof BatEntity) && config.passive.isEnabled) {
@@ -62,10 +65,19 @@ public class ColorUtil {
             } else if (entity instanceof EndCrystalEntity) {
                 return ColorUtil.decode(config.misc.endCrystalEntity.color, config.misc.endCrystalEntity.alpha);
             }
-
         }
 
         return ColorUtil.decode(config.color, config.alpha);
+    }
+
+    public static Color getDragonPartColor() {
+        ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+        if (!config.ender_dragon.isEnabled) {
+            return ColorUtil.decode(config.color, config.alpha);
+        } else if (!config.ender_dragon.realHitbox) {
+            return ColorUtil.decode(config.ender_dragon.part_color, 0);
+        }
+        return ColorUtil.decode(config.ender_dragon.part_color, config.ender_dragon.part_alpha);
     }
 
     private static Color decode(int hex, int transparency) {
