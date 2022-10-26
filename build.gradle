@@ -2,6 +2,7 @@ plugins {
 	id 'fabric-loom' version '1.0-SNAPSHOT'
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
+//	id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -67,7 +68,6 @@ task publishToModSites {
 }
 
 modrinth {
-	BufferedReader br = new BufferedReader(new InputStreamReader(System.in))
 	token = System.getenv("MODRINTH_TOKEN") // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
 	projectId = project.archivesBaseName // This can be the project ID or the slug. Either will work!
 	versionNumber = project.version // You don't need to set this manually. Will fail if Modrinth has this version already
@@ -87,6 +87,26 @@ modrinth {
 	changelog = project.ext.changelog
 
 }
+//
+//curseforge {
+//	apiKey = System.getenv("CURSEFORGE_TOKEN")
+//	project {
+//		id = '690221'
+//		changelog = project.ext.changelog
+//		releaseType = project.release_type
+//		addGameVersion "1.19.2"
+//		addGameVersion "Fabric" //Set Modloader to Fabric
+//		requiredDependency "modmenu"
+//		requiredDependency "cloth-config"
+//		afterEvaluate {
+//			mainArtifact(remapJar.output)
+//			uploadTask.dependsOn(remapJar)
+//		}
+//	}
+//	options {
+//		forgeGradleIntegration = false
+//	}
+//}
 
 // configure the maven publication
 publishing {
