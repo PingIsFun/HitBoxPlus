@@ -65,6 +65,10 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
+    public EnderDragonEntity ender_dragon = new EnderDragonEntity();
+
+    @ConfigEntry.Category(value = "entity")
+    @ConfigEntry.Gui.CollapsibleObject
     public MiscEntityDropdown misc = new MiscEntityDropdown();
 
     public static class MiscEntityDropdown {
@@ -155,13 +159,13 @@ public class ModConfig implements ConfigData {
             return new Entity();
         }
 
+        public boolean isEnabled = false;
+
         @ConfigEntry.ColorPicker()
         public int color = 0xFFFFFF;
 
         @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
         public int alpha = 10;
-
-        public boolean isEnabled = false;
     }
 
     public static class MiscEntity {
@@ -198,6 +202,26 @@ public class ModConfig implements ConfigData {
 
         @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
         public int alpha = 10;
+    }
+
+    public static class EnderDragonEntity {
+        public boolean isEnabled = true;
+        public boolean realHitbox = true;
+        public boolean boxHitbox = false;
+
+        @ConfigEntry.Gui.PrefixText
+        @ConfigEntry.ColorPicker()
+        public int color = 0xFFFFFF;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int alpha = 10;
+
+        @ConfigEntry.Gui.PrefixText
+        @ConfigEntry.ColorPicker()
+        public int part_color = 0xFFFFFF;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int part_alpha = 10;
     }
 
 }
