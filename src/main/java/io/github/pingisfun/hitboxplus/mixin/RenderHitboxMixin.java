@@ -19,7 +19,7 @@ public class RenderHitboxMixin {
 	private static void renderHitbox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, CallbackInfo ci) {
 		ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 		if (config.isModEnabled) {
-			BoxRenderUtil.drawBox(matrices, vertices, entity);
+			BoxRenderUtil.drawBox(matrices, vertices, entity, tickDelta);
 			ci.cancel();
 		}
 	}
