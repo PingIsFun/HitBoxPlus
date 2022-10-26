@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "HitBox+",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A mod that allows you to change the color of hitboxes.",
   "authors": [
     "PingIsFun"
   ],
