@@ -84,7 +84,7 @@ modrinth {
 		required.project "cloth-config"
 	}
 	syncBodyFrom = rootProject.file("README.md").text
-	changelog = "Fix dragon hitbox rendering"
+	changelog = "Small fix"
 //	debugMode = true
 
 }
