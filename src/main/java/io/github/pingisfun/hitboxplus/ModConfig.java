@@ -1,5 +1,6 @@
 package io.github.pingisfun.hitboxplus;
 
+import io.github.pingisfun.hitboxplus.util.ConfEnums;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -22,6 +23,8 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
     public int alpha = 10;
 
+    @ConfigEntry.Category(value = "general")
+    public ConfEnums.PlayerListTypes middleClick = ConfEnums.PlayerListTypes.FRIEND;
 
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category(value = "players")
@@ -157,4 +160,5 @@ public class ModConfig implements ConfigData {
         @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
         public int alpha = 10;
     }
+
 }
