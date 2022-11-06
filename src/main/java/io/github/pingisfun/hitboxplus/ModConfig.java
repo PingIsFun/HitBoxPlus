@@ -29,19 +29,19 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.ListConfig friend = new Player.ListConfig(0x20FF00);
+    public PlayerListConfig friend = new PlayerListConfig(0x20FF00);
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.ListConfig enemy = new Player.ListConfig(0xD40000);
+    public PlayerListConfig enemy = new PlayerListConfig(0xD40000);
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.SingleConfig neutral = new Player.SingleConfig();
+    public PlayerSingleConfig neutral = new PlayerSingleConfig();
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.SingleConfig self = new Player.SingleConfig();
+    public PlayerSingleConfig self = new PlayerSingleConfig();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
@@ -97,32 +97,6 @@ public class ModConfig implements ConfigData {
 
 
     }
-
-    public static class Player {
-        public static class ListConfig {
-
-            public ListConfig(int color) {
-                this.color = color;
-            }
-
-            public List<String> list = new ArrayList<>();
-
-            @ConfigEntry.ColorPicker()
-            public int color;
-
-            @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
-            public int alpha = 10;
-        }
-        public static class SingleConfig {
-            @ConfigEntry.ColorPicker()
-            public int color = 0xFFFFFF;
-
-            @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
-            public int alpha = 10;
-        }
-
-    }
-
     public static class Entity {
         public boolean isEnabled = false;
 
@@ -161,4 +135,26 @@ public class ModConfig implements ConfigData {
         public int part_alpha = 10;
     }
 
+    public static class PlayerSingleConfig {
+        @ConfigEntry.ColorPicker()
+        public int color = 0xFFFFFF;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int alpha = 10;
+    }
+
+    public static class PlayerListConfig {
+
+        public PlayerListConfig(int color) {
+            this.color = color;
+        }
+
+        public List<String> list = new ArrayList<>();
+
+        @ConfigEntry.ColorPicker()
+        public int color;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int alpha = 10;
+    }
 }
