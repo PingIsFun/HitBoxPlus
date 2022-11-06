@@ -29,39 +29,39 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.FriendPlayer friend = new Player.FriendPlayer();
+    public PlayerListConfig friend = new PlayerListConfig(0x20FF00);
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.EnemyPlayer enemy = new Player.EnemyPlayer();
+    public PlayerListConfig enemy = new PlayerListConfig(0xD40000);
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.NeutralPlayer neutral = new Player.NeutralPlayer();
+    public PlayerSingleConfig neutral = new PlayerSingleConfig();
 
     @ConfigEntry.Category(value = "players")
     @ConfigEntry.Gui.CollapsibleObject
-    public Player.SelfPlayer self = new Player.SelfPlayer();
+    public PlayerSingleConfig self = new PlayerSingleConfig();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
-    public Entity passive = Entity.passive();
+    public Entity passive = new Entity();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
-    public Entity hostile = Entity.hostile();
+    public Entity hostile = new Entity();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
-    public Entity decoration = Entity.decoration();
+    public Entity decoration = new Entity();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
-    public Entity projectile = Entity.projectile();
+    public Entity projectile = new Entity();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
-    public Entity vehicle = Entity.vehicle();
+    public Entity vehicle = new Entity();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
@@ -75,90 +75,29 @@ public class ModConfig implements ConfigData {
         public boolean isEnabled = false;
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity areaEffectCloud = MiscEntity.areaEffectCloud();
+        public MiscEntity areaEffectCloud = new MiscEntity();
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity experienceOrb = MiscEntity.experienceOrb();
+        public MiscEntity experienceOrb = new MiscEntity();
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity eyeOfEnder = MiscEntity.eyeOfEnder();
+        public MiscEntity eyeOfEnder = new MiscEntity();
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity fallingBlock = MiscEntity.fallingBlock();
+        public MiscEntity fallingBlock = new MiscEntity();
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity item = MiscEntity.item();
+        public MiscEntity item = new MiscEntity();
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity tnt = MiscEntity.tnt();
+        public MiscEntity tnt = new MiscEntity();
 
         @ConfigEntry.Gui.CollapsibleObject
-        public MiscEntity endCrystalEntity = MiscEntity.endCrystalEntity();
+        public MiscEntity endCrystalEntity = new MiscEntity();
 
 
     }
-
-    public static class Player {
-        public static class FriendPlayer {
-            public List<String> list = new ArrayList<>();
-
-            @ConfigEntry.ColorPicker()
-            public int color = 0x20FF00;
-
-            @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
-            public int alpha = 10;
-        }
-
-        public static class EnemyPlayer {
-            public List<String> list = new ArrayList<>();
-
-            @ConfigEntry.ColorPicker()
-            public int color = 0xD40000;
-
-            @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
-            public int alpha = 10;
-        }
-
-        public static class SelfPlayer {
-            @ConfigEntry.ColorPicker()
-            public int color = 0xFFFFFF;
-
-            @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
-            public int alpha = 10;
-        }
-
-        public static class NeutralPlayer {
-
-            @ConfigEntry.ColorPicker()
-            public int color = 0xFFFFFF;
-
-            @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
-            public int alpha = 10;
-        }
-
-    }
-
     public static class Entity {
-        public static Entity passive() {
-            return new Entity();
-        }
-
-        public static Entity hostile() {
-            return new Entity();
-        }
-
-        public static Entity decoration() {
-            return new Entity();
-        }
-
-        public static Entity projectile() {
-            return new Entity();
-        }
-
-        public static Entity vehicle() {
-            return new Entity();
-        }
-
         public boolean isEnabled = false;
 
         @ConfigEntry.ColorPicker()
@@ -169,34 +108,6 @@ public class ModConfig implements ConfigData {
     }
 
     public static class MiscEntity {
-        public static MiscEntity areaEffectCloud() {
-            return new MiscEntity();
-        }
-
-        public static MiscEntity experienceOrb() {
-            return new MiscEntity();
-        }
-
-        public static MiscEntity eyeOfEnder() {
-            return new MiscEntity();
-        }
-
-        public static MiscEntity fallingBlock() {
-            return new MiscEntity();
-        }
-
-        public static MiscEntity item() {
-            return new MiscEntity();
-        }
-
-        public static MiscEntity tnt() {
-            return new MiscEntity();
-        }
-
-        public static MiscEntity endCrystalEntity() {
-            return new MiscEntity();
-        }
-
         @ConfigEntry.ColorPicker()
         public int color = 0xFFFFFF;
 
@@ -224,4 +135,26 @@ public class ModConfig implements ConfigData {
         public int part_alpha = 10;
     }
 
+    public static class PlayerSingleConfig {
+        @ConfigEntry.ColorPicker()
+        public int color = 0xFFFFFF;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int alpha = 10;
+    }
+
+    public static class PlayerListConfig {
+
+        public PlayerListConfig(int color) {
+            this.color = color;
+        }
+
+        public List<String> list = new ArrayList<>();
+
+        @ConfigEntry.ColorPicker()
+        public int color;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int alpha = 10;
+    }
 }

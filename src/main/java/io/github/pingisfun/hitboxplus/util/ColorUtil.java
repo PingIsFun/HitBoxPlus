@@ -9,8 +9,8 @@ import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.mob.AmbientEntity;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -40,7 +40,7 @@ public class ColorUtil {
             return ColorUtil.decode(config.ender_dragon.color, config.ender_dragon.alpha);
         } else if (entity instanceof HostileEntity && config.hostile.isEnabled) {
             return ColorUtil.decode(config.hostile.color, config.hostile.alpha);
-        } else if ((entity instanceof PassiveEntity || entity instanceof BatEntity) && config.passive.isEnabled) {
+        } else if ((entity instanceof PassiveEntity || entity instanceof AmbientEntity) && config.passive.isEnabled) {
             return ColorUtil.decode(config.passive.color, config.passive.alpha);
         } else if ((entity instanceof ProjectileEntity) && config.projectile.isEnabled) {
             return ColorUtil.decode(config.projectile.color, config.projectile.alpha);
