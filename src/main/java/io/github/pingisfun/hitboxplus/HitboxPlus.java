@@ -22,6 +22,11 @@ public class HitboxPlus implements ModInitializer {
 //
 //		LOGGER.info("----------------->");
 //	}
+//	public static void SINFO(Object... obj) {
+//		for (Object i : obj) {
+//			LOGGER.info(String.valueOf(i));
+//		}
+//	}
 
 	@Override
 	public void onInitialize() {
