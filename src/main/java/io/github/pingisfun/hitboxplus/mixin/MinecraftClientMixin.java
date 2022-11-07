@@ -1,5 +1,6 @@
 package io.github.pingisfun.hitboxplus.mixin;
 
+import io.github.pingisfun.hitboxplus.HitboxPlus;
 import io.github.pingisfun.hitboxplus.ModConfig;
 import io.github.pingisfun.hitboxplus.util.ConfEnums;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -31,15 +32,22 @@ public abstract class MinecraftClientMixin {
             String name = entityHit.getEntity().getEntityName();
             boolean wasEnemy = config.enemy.list.remove(name);
             boolean wasFriend = config.friend.list.remove(name);
-            if (config.middleClick == ConfEnums.PlayerListTypes.FRIEND) {
-                if (!wasFriend) {
-                    config.friend.list.add(name);
+            HitboxPlus.INFO(wasEnemy, wasFriend);
+            // none -> friend -> enemy ->> none -> friend -> enemy ->>
+            if (config.middleClick == ConfEnums.PlayerListTypes.CYCLE) {
+                if (wasFriend && wasEnemy) {
+                    assert true;
                 }
-
-            } else if (config.middleClick == ConfEnums.PlayerListTypes.ENEMY) {
-                if (!wasEnemy) {
+                else if (!wasFriend && !wasEnemy) {
+                    config.friend.list.add(name);
+                } else if (wasFriend) {
                     config.enemy.list.add(name);
                 }
+            }
+            else if (config.middleClick == ConfEnums.PlayerListTypes.FRIEND && !wasFriend) {
+                config.friend.list.add(name);
+            } else if (config.middleClick == ConfEnums.PlayerListTypes.ENEMY && !wasEnemy) {
+                config.enemy.list.add(name);
             }
 
             AutoConfig.getConfigHolder(ModConfig.class).setConfig(config);

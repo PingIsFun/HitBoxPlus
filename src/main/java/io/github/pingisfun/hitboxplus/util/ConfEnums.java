@@ -4,7 +4,7 @@ public class ConfEnums {
     public enum PlayerListTypes {
         DISABLED,
         ENEMY,
-        FRIEND
-
+        FRIEND,
+        CYCLE,
     }
 }
