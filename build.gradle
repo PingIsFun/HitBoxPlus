@@ -85,7 +85,7 @@ modrinth {
 		required.project "cloth-config"
 	}
 	syncBodyFrom = rootProject.file("README.md").text
-	changelog = "Change player status with middle clicking"
+	changelog = "You can now change player status with middle clicking"
 //	debugMode = true
 
 }
