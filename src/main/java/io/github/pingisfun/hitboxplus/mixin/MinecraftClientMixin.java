@@ -1,6 +1,5 @@
 package io.github.pingisfun.hitboxplus.mixin;
 
-import io.github.pingisfun.hitboxplus.HitboxPlus;
 import io.github.pingisfun.hitboxplus.ModConfig;
 import io.github.pingisfun.hitboxplus.util.ConfEnums;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -18,6 +17,9 @@ public abstract class MinecraftClientMixin {
     @Inject(at = @At("HEAD"), method = "doItemPick")
     private void toggleHostility(CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
+        if (!client.getEntityRenderDispatcher().shouldRenderHitboxes()) {
+            return;
+        }
         HitResult hit = client.crosshairTarget;
         if (hit == null || hit.getType() != HitResult.Type.ENTITY) {
             return;
@@ -36,14 +38,12 @@ public abstract class MinecraftClientMixin {
             if (config.middleClick == ConfEnums.PlayerListTypes.CYCLE) {
                 if (wasFriend && wasEnemy) {
                     assert true; // Do nothing
-                }
-                else if (!wasFriend && !wasEnemy) {
+                } else if (!wasFriend && !wasEnemy) {
                     config.friend.list.add(name);
                 } else if (wasFriend) {
                     config.enemy.list.add(name);
                 }
-            }
-            else if (config.middleClick == ConfEnums.PlayerListTypes.FRIEND && !wasFriend) {
+            } else if (config.middleClick == ConfEnums.PlayerListTypes.FRIEND && !wasFriend) {
                 config.friend.list.add(name);
             } else if (config.middleClick == ConfEnums.PlayerListTypes.ENEMY && !wasEnemy) {
                 config.enemy.list.add(name);
