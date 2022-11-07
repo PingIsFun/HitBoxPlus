@@ -14,8 +14,18 @@ public class HitboxPlus implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 //	For dev debug comment when committing
-//	public static void INFO(Object obj) {
-//		LOGGER.info(String.valueOf(obj));
+//	public static void INFO(Object... obj) {
+//		LOGGER.info("<-----------------");
+//		for (Object i : obj) {
+//			LOGGER.info(String.valueOf(i));
+//		}
+//
+//		LOGGER.info("----------------->");
+//	}
+//	public static void SINFO(Object... obj) {
+//		for (Object i : obj) {
+//			LOGGER.info(String.valueOf(i));
+//		}
 //	}
 
 	@Override
