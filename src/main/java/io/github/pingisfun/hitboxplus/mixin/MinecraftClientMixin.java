@@ -20,6 +20,10 @@ public abstract class MinecraftClientMixin {
         if (!client.getEntityRenderDispatcher().shouldRenderHitboxes()) {
             return;
         }
+        ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+        if (!config.isPlayerConfigEnabled) {
+            return;
+        }
         HitResult hit = client.crosshairTarget;
         if (hit == null || hit.getType() != HitResult.Type.ENTITY) {
             return;
@@ -27,7 +31,6 @@ public abstract class MinecraftClientMixin {
         EntityHitResult entityHit = (EntityHitResult) hit;
 
         if (entityHit.getEntity() instanceof OtherClientPlayerEntity) {
-            ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
             if (config.middleClick == ConfEnums.PlayerListTypes.DISABLED) {
                 return;
             }
