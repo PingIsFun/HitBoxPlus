@@ -17,26 +17,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftClientMixin {
     @Inject(at = @At("HEAD"), method = "doItemPick")
     private void toggleHostility(CallbackInfo ci) {
-        ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
-        if (config.middleClick == ConfEnums.PlayerListTypes.DISABLED) {
-            return;
-        }
         MinecraftClient client = MinecraftClient.getInstance();
         HitResult hit = client.crosshairTarget;
-        if (hit.getType() != HitResult.Type.ENTITY) {
+        if (hit == null || hit.getType() != HitResult.Type.ENTITY) {
             return;
         }
         EntityHitResult entityHit = (EntityHitResult) hit;
 
         if (entityHit.getEntity() instanceof OtherClientPlayerEntity) {
+            ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+            if (config.middleClick == ConfEnums.PlayerListTypes.DISABLED) {
+                return;
+            }
             String name = entityHit.getEntity().getEntityName();
             boolean wasEnemy = config.enemy.list.remove(name);
             boolean wasFriend = config.friend.list.remove(name);
-            HitboxPlus.INFO(wasEnemy, wasFriend);
             // none -> friend -> enemy ->> none -> friend -> enemy ->>
             if (config.middleClick == ConfEnums.PlayerListTypes.CYCLE) {
                 if (wasFriend && wasEnemy) {
-                    assert true;
+                    assert true; // Do nothing
                 }
                 else if (!wasFriend && !wasEnemy) {
                     config.friend.list.add(name);
