@@ -10,6 +10,9 @@
   "text.autoconfig.hitboxplus.option.color": "Color",
   "text.autoconfig.hitboxplus.option.alpha.@Tooltip": "0 = invisible, 10 = solid",
   "text.autoconfig.hitboxplus.option.alpha": "Transparency",
+  "text.autoconfig.hitboxplus.option.middleClick.@PrefixText": "§f§lAdvanced",
+  "text.autoconfig.hitboxplus.option.middleClick.@Tooltip": "Only works when hitboxes are enabled and player config is enabled",
+  "text.autoconfig.hitboxplus.option.middleClick": "Middle Click Functionality",
 
 
   "text.autoconfig.hitboxplus.option.isPlayerConfigEnabled.@PrefixText": "§f§lPlayer Config",

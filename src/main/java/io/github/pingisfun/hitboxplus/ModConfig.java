@@ -24,7 +24,9 @@ public class ModConfig implements ConfigData {
     public int alpha = 10;
 
     @ConfigEntry.Category(value = "general")
-    public ConfEnums.PlayerListTypes middleClick = ConfEnums.PlayerListTypes.FRIEND;
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.Gui.PrefixText
+    public ConfEnums.PlayerListTypes middleClick = ConfEnums.PlayerListTypes.CYCLE;
 
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category(value = "players")
