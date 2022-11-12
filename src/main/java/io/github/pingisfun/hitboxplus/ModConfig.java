@@ -26,6 +26,7 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.Category(value = "general")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public ConfEnums.PlayerListTypes middleClick = ConfEnums.PlayerListTypes.CYCLE;
 
     @ConfigEntry.Gui.PrefixText
