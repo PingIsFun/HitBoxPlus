@@ -63,7 +63,7 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
-    public Entity projectile = new Entity();
+    public ProjectileEntity projectile = new ProjectileEntity();
 
     @ConfigEntry.Category(value = "entity")
     @ConfigEntry.Gui.CollapsibleObject
@@ -103,6 +103,20 @@ public class ModConfig implements ConfigData {
 
 
     }
+
+    public static class ProjectileEntity {
+
+        public boolean isEnabled = false;
+
+        @ConfigEntry.ColorPicker()
+        public int color = 0xFFFFFF;
+
+        @ConfigEntry.BoundedDiscrete(max = 10, min = 0)
+        public int alpha = 10;
+
+        public boolean renderStuck = false;
+    }
+
     public static class Entity {
         public boolean isEnabled = false;
 

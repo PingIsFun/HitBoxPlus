@@ -1,5 +1,6 @@
 package io.github.pingisfun.hitboxplus.util;
 
+import io.github.pingisfun.hitboxplus.HitboxPlus;
 import io.github.pingisfun.hitboxplus.ModConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -14,6 +15,7 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.AllayEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
@@ -44,6 +46,11 @@ public class ColorUtil {
         } else if ((entity instanceof PassiveEntity || entity instanceof AllayEntity || entity instanceof AmbientEntity) && config.passive.isEnabled) {
             return ColorUtil.decode(config.passive.color, config.passive.alpha);
         } else if ((entity instanceof ProjectileEntity) && config.projectile.isEnabled) {
+            if (entity instanceof PersistentProjectileEntity persistentProjectile && !config.projectile.renderStuck) {
+                if (persistentProjectile.pickupType == PersistentProjectileEntity.PickupPermission.DISALLOWED) {
+                    return ColorUtil.transparent();
+                }
+            }
             return ColorUtil.decode(config.projectile.color, config.projectile.alpha);
         } else if ((entity instanceof AbstractDecorationEntity || entity instanceof ArmorStandEntity) && config.decoration.isEnabled) {
             return ColorUtil.decode(config.decoration.color, config.decoration.alpha);
@@ -89,7 +96,9 @@ public class ColorUtil {
 
         Color rgb = Color.decode(String.valueOf(hex));
         return new Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue(), alpha);
-
+    }
+    private static Color transparent() {
+        return new Color(0, 0, 0, 0);
     }
 
     private static boolean isMiscEntity(Entity entity) {
