@@ -26,5 +26,4 @@ A mod that allows you to change the color of hitboxes.
 
 # Dependencies
 
-- Mod Menu: https://modrinth.com/mod/modmenu
 - Cloth Config: https://modrinth.com/mod/cloth-config

@@ -59,7 +59,7 @@ jar {
 }
 
 
-project.ext.changelog = "Testing upload script"
+project.ext.changelog = project.changelog
 project.ext.versionName = "[1.19.x] HitBox+ ${project.version}"
 project.ext.debug = true
 
