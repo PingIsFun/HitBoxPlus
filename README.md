@@ -11,17 +11,17 @@
 
 A mod that allows you to change the color of hitboxes.
 
-![showcase](assets/readme/showcase.png)
+![showcase](https://raw.githubusercontent.com/PingIsFun/HitBoxPlus/1.19/assets/readme/showcase.png)
 
 ## Features
 
 ### Friend and Enemy color
 
-![player config](assets/readme/player_config.png)
+![player config](https://raw.githubusercontent.com/PingIsFun/HitBoxPlus/1.19/assets/readme/player_config.png)
 
 ### Separate configs for different entity types
 
-![entity config](assets/readme/entity_config.png)
+![entity config](https://raw.githubusercontent.com/PingIsFun/HitBoxPlus/1.19/assets/readme/entity_config.png)
 
 
 # Dependencies
