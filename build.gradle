@@ -2,7 +2,7 @@ plugins {
 	id 'fabric-loom' version '1.0-SNAPSHOT'
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
-//	id "com.matthewprenger.cursegradle" version "1.4.0"
+	id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -59,20 +59,15 @@ jar {
 }
 
 
-//task publishToModSites {
-//	BufferedReader br = new BufferedReader(new InputStreamReader(System.in))
-//	System.out.println("Enter changelog:")
-//	project.ext.changelog = br.readLine().strip()
-//	System.out.println(project.ext.changelog)
-//	publishToModSites.dependsOn modrinth
-//	publishToModSites.dependsOn curseforge
-//}
+project.ext.changelog = project.changelog
+project.ext.versionName = "[1.18.x] HitBox+ ${project.version}"
+project.ext.debug = true
 
 modrinth {
 	token = System.getenv("MODRINTH_TOKEN") // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
 	projectId = project.archives_base_name // This can be the project ID or the slug. Either will work!
 	versionNumber = "${project.minecraft_version}-${project.version}" // You don't need to set this manually. Will fail if Modrinth has this version already
-	versionName = "[1.18.x] HitBox+ ${project.version}"
+	versionName = project.ext.versionName
 	versionType = project.release_type // This is the default -- can also be `beta` or `alpha`
 	uploadFile = remapJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
 	gameVersions = ["1.18.2", "1.18.1", "1.18"] // Must be an array, even with only one version
@@ -84,28 +79,37 @@ modrinth {
 		optional.project "modmenu"
 		required.project "cloth-config"
 	}
-	syncBodyFrom = rootProject.file("README.md").text
-	changelog = "You can now change player status with middle clicking"
-//	debugMode = true
-
+	// DONT SYNC BODY ON 1.18 syncBodyFrom = rootProject.file("README.md").text
+	changelog = project.ext.changelog
+	debugMode = project.ext.debug
 }
-//
+
+
 //curseforge {
 //	apiKey = System.getenv("CURSEFORGE_TOKEN")
 //	project {
 //		id = '690221'
 //		changelog = project.ext.changelog
 //		releaseType = project.release_type
-//		addGameVersion "1.19.2"
+//		addGameVersion "1.18.2"
+//		addGameVersion "1.18.1"
+//		addGameVersion "1.18"
 //		addGameVersion "Fabric" //Set Modloader to Fabric
-//		requiredDependency "modmenu"
-//		requiredDependency "cloth-config"
 //		afterEvaluate {
-//			mainArtifact(remapJar.output)
+//			mainArtifact(remapJar)
 //			uploadTask.dependsOn(remapJar)
+//
+//		}
+//		mainArtifact(remapJar) {
+//			displayName = project.ext.versionName
+//			relations {
+//				optionalDependency "modmenu"
+//				requiredDependency "cloth-config"
+//			}
 //		}
 //	}
 //	options {
+//		debug = project.ext.debug
 //		forgeGradleIntegration = false
 //	}
 //}
