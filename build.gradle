@@ -64,7 +64,7 @@ task publishToModSites {
 	project.ext.versionName = "[1.19.x] HitBox+ ${project.version}"
 	project.ext.debug = true
 	publishToModSites.dependsOn modrinth
-	publishToModSites.dependsOn curseforge
+//	publishToModSites.dependsOn curseforge
 }
 
 modrinth {
@@ -92,33 +92,33 @@ tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
 
 
 
-curseforge {
-	apiKey = System.getenv("CURSEFORGE_TOKEN")
-	project {
-		id = '690221'
-		changelog = project.ext.changelog
-		releaseType = project.release_type
-		addGameVersion "1.19.2"
-		addGameVersion "1.19.1"
-		addGameVersion "1.19"
-		addGameVersion "Fabric" //Set Modloader to Fabric
-		afterEvaluate {
-			mainArtifact(remapJar)
-			uploadTask.dependsOn(remapJar)
-
-		}
-		mainArtifact(remapJar) {
-			displayName = project.ext.versionName
-			relations {
-				optionalDependency "modmenu"
-				requiredDependency "cloth-config"
-			}
-		}
-	}
-	options {
-		debug = project.ext.debug
-	}
-}
+//curseforge {
+//	apiKey = System.getenv("CURSEFORGE_TOKEN")
+//	project {
+//		id = '690221'
+//		changelog = project.ext.changelog
+//		releaseType = project.release_type
+//		addGameVersion "1.19.2"
+//		addGameVersion "1.19.1"
+//		addGameVersion "1.19"
+//		addGameVersion "Fabric" //Set Modloader to Fabric
+//		afterEvaluate {
+//			mainArtifact(remapJar)
+//			uploadTask.dependsOn(remapJar)
+//
+//		}
+//		mainArtifact(remapJar) {
+//			displayName = project.ext.versionName
+//			relations {
+//				optionalDependency "modmenu"
+//				requiredDependency "cloth-config"
+//			}
+//		}
+//	}
+//	options {
+//		debug = project.ext.debug
+//	}
+//}
 
 // configure the maven publication
 publishing {
