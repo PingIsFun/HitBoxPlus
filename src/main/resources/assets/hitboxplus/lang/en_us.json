@@ -53,6 +53,7 @@
   "text.autoconfig.hitboxplus.option.projectile.isEnabled": "Enabled",
   "text.autoconfig.hitboxplus.option.projectile.color": "Color",
   "text.autoconfig.hitboxplus.option.projectile.alpha": "Transparency",
+  "text.autoconfig.hitboxplus.option.projectile.renderStuck": "Render Stuck Projectiles",
 
   "text.autoconfig.hitboxplus.option.vehicle": "§f§l Vehicle",
   "text.autoconfig.hitboxplus.option.vehicle.isEnabled": "Enabled",

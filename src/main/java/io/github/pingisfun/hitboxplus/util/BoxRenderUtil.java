@@ -40,7 +40,7 @@ public class BoxRenderUtil {
                     matrices.pop();
                 }
             }
-            if (!config.ender_dragon.boxHitbox && config.ender_dragon.isEnabled) {
+            if (!config.enderDragon.boxHitbox && config.enderDragon.isEnabled) {
                 return;
             }
 
