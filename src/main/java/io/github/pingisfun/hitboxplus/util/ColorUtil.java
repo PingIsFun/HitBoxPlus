@@ -1,6 +1,5 @@
 package io.github.pingisfun.hitboxplus.util;
 
-import io.github.pingisfun.hitboxplus.HitboxPlus;
 import io.github.pingisfun.hitboxplus.ModConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -39,17 +38,17 @@ public class ColorUtil {
                     return ColorUtil.decode(config.neutral.color, config.neutral.alpha);
                 }
             }
-        } else if (entity instanceof EnderDragonEntity && config.ender_dragon.isEnabled && config.ender_dragon.boxHitbox) {
-            return ColorUtil.decode(config.ender_dragon.color, config.ender_dragon.alpha);
+        } else if (entity instanceof EnderDragonEntity && config.enderDragon.isEnabled && config.enderDragon.boxHitbox) {
+            return ColorUtil.decode(config.enderDragon.color, config.enderDragon.alpha);
         } else if (entity instanceof HostileEntity && config.hostile.isEnabled) {
             return ColorUtil.decode(config.hostile.color, config.hostile.alpha);
         } else if ((entity instanceof PassiveEntity || entity instanceof AllayEntity || entity instanceof AmbientEntity) && config.passive.isEnabled) {
             return ColorUtil.decode(config.passive.color, config.passive.alpha);
         } else if ((entity instanceof ProjectileEntity) && config.projectile.isEnabled) {
-            if (entity instanceof PersistentProjectileEntity persistentProjectile && !config.projectile.renderStuck) {
-                if (persistentProjectile.pickupType == PersistentProjectileEntity.PickupPermission.DISALLOWED) {
-                    return ColorUtil.transparent();
-                }
+            if (entity instanceof PersistentProjectileEntity persistentProjectile
+                    && !config.projectile.renderStuck
+                    && persistentProjectile.pickupType == PersistentProjectileEntity.PickupPermission.DISALLOWED) {
+                return ColorUtil.transparent();
             }
             return ColorUtil.decode(config.projectile.color, config.projectile.alpha);
         } else if ((entity instanceof AbstractDecorationEntity || entity instanceof ArmorStandEntity) && config.decoration.isEnabled) {
@@ -79,12 +78,12 @@ public class ColorUtil {
 
     public static Color getDragonPartColor() {
         ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
-        if (!config.ender_dragon.isEnabled) {
+        if (!config.enderDragon.isEnabled) {
             return ColorUtil.decode(config.color, config.alpha);
-        } else if (!config.ender_dragon.realHitbox) {
-            return ColorUtil.decode(config.ender_dragon.part_color, 0);
+        } else if (!config.enderDragon.realHitbox) {
+            return ColorUtil.decode(config.enderDragon.partColor, 0);
         }
-        return ColorUtil.decode(config.ender_dragon.part_color, config.ender_dragon.part_alpha);
+        return ColorUtil.decode(config.enderDragon.partColor, config.enderDragon.partAlpha);
     }
 
     private static Color decode(int hex, int transparency) {
@@ -97,6 +96,7 @@ public class ColorUtil {
         Color rgb = Color.decode(String.valueOf(hex));
         return new Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue(), alpha);
     }
+
     private static Color transparent() {
         return new Color(0, 0, 0, 0);
     }
