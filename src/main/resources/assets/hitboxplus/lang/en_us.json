@@ -67,9 +67,9 @@
   "text.autoconfig.hitboxplus.option.enderDragon.color.@PrefixText": "§a§lBox",
   "text.autoconfig.hitboxplus.option.enderDragon.color": "Color",
   "text.autoconfig.hitboxplus.option.enderDragon.alpha": "Alpha",
-  "text.autoconfig.hitboxplus.option.enderDragon.part_color.@PrefixText": "§a§lBody Part",
-  "text.autoconfig.hitboxplus.option.enderDragon.part_color": "Color",
-  "text.autoconfig.hitboxplus.option.enderDragon.part_alpha": "Alpha",
+  "text.autoconfig.hitboxplus.option.enderDragon.partColor.@PrefixText": "§a§lBody Part",
+  "text.autoconfig.hitboxplus.option.enderDragon.partColor": "Color",
+  "text.autoconfig.hitboxplus.option.enderDragon.partAlpha": "Alpha",
 
   "text.autoconfig.hitboxplus.option.misc": "§f§l Miscellaneous",
   "text.autoconfig.hitboxplus.option.misc.isEnabled": "Enabled",
