@@ -101,6 +101,12 @@ public class ModConfig implements ConfigData {
         @ConfigEntry.Gui.CollapsibleObject
         public MiscEntity endCrystalEntity = new MiscEntity();
 
+        @ConfigEntry.Gui.CollapsibleObject
+        public MiscEntity enderPearlEntity = new MiscEntity();
+
+        @ConfigEntry.Gui.CollapsibleObject
+        public MiscEntity tridentEntity = new MiscEntity();
+
 
     }
 

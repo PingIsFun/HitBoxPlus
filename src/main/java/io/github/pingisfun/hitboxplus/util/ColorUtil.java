@@ -16,6 +16,8 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.TridentEntity;
+import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 
@@ -49,6 +51,10 @@ public class ColorUtil {
                     && !config.projectile.renderStuck
                     && persistentProjectile.pickupType == PersistentProjectileEntity.PickupPermission.DISALLOWED) {
                 return ColorUtil.transparent();
+            } else if (entity instanceof EnderPearlEntity) {
+                return ColorUtil.decode(config.misc.enderPearlEntity.color, config.misc.enderPearlEntity.alpha);
+            } else if (entity instanceof TridentEntity) {
+                return ColorUtil.decode(config.misc.tridentEntity.color, config.misc.tridentEntity.alpha);
             }
             return ColorUtil.decode(config.projectile.color, config.projectile.alpha);
         } else if ((entity instanceof AbstractDecorationEntity || entity instanceof ArmorStandEntity) && config.decoration.isEnabled) {
