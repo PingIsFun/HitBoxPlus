@@ -30,13 +30,13 @@
   ],
 
   "depends": {
-    "minecraft": "1.19.3",
+    "minecraft": ">=1.20",
     "java": ">=17"
   },
 
   "recommends": {
     "fabricloader": ">=0.14.14",
-    "cloth-config": "~9.0",
-    "modmenu": "~5.0"
+    "cloth-config": ">=12.0",
+    "modmenu": ">=7.0"
   }
 }
