@@ -1,6 +1,5 @@
 package io.github.pingisfun.hitboxplus.mixin;
 
-import io.github.pingisfun.hitboxplus.HitboxPlus;
 import io.github.pingisfun.hitboxplus.ModConfig;
 import io.github.pingisfun.hitboxplus.util.BoxRenderUtil;
 import me.shedaniel.autoconfig.AutoConfig;

@@ -1,8 +1,8 @@
 package io.github.pingisfun.hitboxplus.integration;
 
-import io.github.pingisfun.hitboxplus.ModConfig;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
+import io.github.pingisfun.hitboxplus.ModConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 
 public class ModMenuIntegration implements ModMenuApi {
