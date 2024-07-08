@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityRenderDispatcher.class)
 public class RenderHitboxMixin {
 	@Inject(at = @At("HEAD"), method = "renderHitbox", cancellable = true)
-	private static void renderHitbox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, CallbackInfo ci) {
+	private static void renderHitbox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, float red, float green, float blue, CallbackInfo ci) {
 		ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 		if (config.isModEnabled) {
 			BoxRenderUtil.drawBox(matrices, vertices, entity, tickDelta);

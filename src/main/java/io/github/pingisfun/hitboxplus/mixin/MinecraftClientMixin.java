@@ -34,7 +34,7 @@ public abstract class MinecraftClientMixin {
             if (config.middleClick == ConfEnums.PlayerListTypes.DISABLED) {
                 return;
             }
-            String name = entityHit.getEntity().getEntityName();
+            String name = entityHit.getEntity().getName().getContent().toString();
             boolean wasEnemy = config.enemy.list.remove(name);
             boolean wasFriend = config.friend.list.remove(name);
             // none -> friend -> enemy ->> none -> friend -> enemy ->>
