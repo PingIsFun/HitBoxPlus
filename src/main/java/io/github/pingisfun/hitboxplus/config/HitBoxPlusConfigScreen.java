@@ -139,7 +139,10 @@ public final class HitBoxPlusConfigScreen {
                     )),
                     () -> groupConfig.enabled ? "Enabled" : "Disabled",
                     () -> groupConfig.enabled ? Formatting.GREEN : Formatting.RED,
-                    () -> groupConfig.enabled = !groupConfig.enabled
+                    () -> {
+                        groupConfig.enabled = !groupConfig.enabled;
+                        HitBoxPlusConfigManager.save();
+                    }
             ));
         }
         return List.of(builder.build());

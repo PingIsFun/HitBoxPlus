@@ -112,6 +112,20 @@ class EntityGroupDataTest {
         assertEquals(7.0F, zombieStyle.hitboxThickness());
     }
 
+    @Test
+    void disabledGroupUsesDefaultStyle() {
+        HitBoxPlusConfig config = new HitBoxPlusConfig();
+        config.defaultHitbox = new HitboxColorConfig(1, 2, 3);
+        config.defaultHitbox.hitboxThickness = 4.0F;
+        config.groupHitboxes.put(EntityGroup.HOSTILE, new GroupHitboxConfig(false, new HitboxColorConfig(140, 16, 7)));
+        config.normalize();
+
+        ResolvedHitboxStyle skeletonStyle = RuntimeHitboxLookup.compile(config).forEntityType(EntityType.SKELETON);
+
+        assertEquals(0xFF010203, skeletonStyle.opaqueArgb());
+        assertEquals(4.0F, skeletonStyle.hitboxThickness());
+    }
+
     private static HitboxColorConfig style(HitboxPattern pattern, float thickness) {
         HitboxColorConfig style = new HitboxColorConfig();
         style.hitboxPattern = pattern;
