@@ -89,6 +89,15 @@ public final class HitBoxPlusConfig {
         }
     }
 
+    public void enableEntityOverride(String entityId) {
+        EntityHitboxConfig override = entityOverride(entityId);
+        override.enabled = true;
+    }
+
+    public void removeEntityOverride(String entityId) {
+        entityOverrides.remove(entityId);
+    }
+
     public void setEntityOverride(String entityId, java.awt.Color color) {
         EntityHitboxConfig override = entityOverride(entityId);
         override.color.setAwtColor(color);
