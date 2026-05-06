@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.command.CommandSource;
 
+import com.mojang.authlib.GameProfile;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -70,7 +71,15 @@ public final class HitBoxPlusClientCommands {
         }
 
         return context.getSource().getClient().player.networkHandler.getListedPlayerListEntries().stream()
-                .map(entry -> entry.getProfile().name());
+                .map(entry -> profileName(entry.getProfile()));
+    }
+
+    private static String profileName(GameProfile profile) {
+        //? if >=1.21.9 {
+        return profile.name();
+        //?} else {
+        /*return profile.getName();
+        *///?}
     }
 
     private static List<String> configuredPlayerNames(PlayerRelation relation) {

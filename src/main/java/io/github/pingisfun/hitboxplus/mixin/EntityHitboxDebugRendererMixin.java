@@ -1,3 +1,4 @@
+//? if >=1.21.11 {
 package io.github.pingisfun.hitboxplus.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -170,3 +171,4 @@ public class EntityHitboxDebugRendererMixin {
         return lookup.forEntityType(entity.getType());
     }
 }
+//?}

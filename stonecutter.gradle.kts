@@ -6,6 +6,9 @@ plugins {
 stonecutter active "1.21.11"
 
 stonecutter parameters {
+    filters {
+        include("**/*.json")
+    }
     swaps["mod_version"] = "\"" + property("mod.version") + "\";"
     swaps["minecraft"] = "\"" + node.metadata.version + "\";"
     constants["release"] = property("mod.id") != "template"

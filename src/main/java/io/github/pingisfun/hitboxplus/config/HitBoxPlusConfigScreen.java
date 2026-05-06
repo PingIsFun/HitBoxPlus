@@ -460,9 +460,11 @@ public final class HitBoxPlusConfigScreen {
             TwoActionRow actions = control.option().pendingValue();
             drawActionButton(context, primaryX(), Text.literal(actions.primaryText()), 0xFFFFFFFF, isPrimaryHovered(mouseX, mouseY));
             drawActionButton(context, secondaryX(), Text.literal(actions.secondaryText().get()), textColor(actions.secondaryColor().get()), isSecondaryHovered(mouseX, mouseY));
+            //? if >=1.21.9 {
             if (hovered) {
                 context.setCursor(isAvailable() ? net.minecraft.client.gui.cursor.StandardCursors.POINTING_HAND : net.minecraft.client.gui.cursor.StandardCursors.NOT_ALLOWED);
             }
+            //?}
         }
 
         private void drawActionButton(DrawContext context, int x, Text text, int color, boolean hovered) {

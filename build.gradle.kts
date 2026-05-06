@@ -26,7 +26,9 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
-    modImplementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}")
+    modImplementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}") {
+        exclude(group = "net.fabricmc.fabric-api")
+    }
     modImplementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
 
