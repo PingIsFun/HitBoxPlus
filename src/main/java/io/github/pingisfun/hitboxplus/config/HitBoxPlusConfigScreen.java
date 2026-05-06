@@ -448,7 +448,7 @@ public final class HitBoxPlusConfigScreen {
     }
 
     private static final class TwoActionRowWidget extends ControllerWidget<TwoActionRowController> {
-        private static final int BUTTON_WIDTH = 58;
+        private static final int BUTTON_WIDTH = 68;
         private static final int BUTTON_GAP = 4;
 
         private TwoActionRowWidget(TwoActionRowController control, YACLScreen screen, Dimension<Integer> dim) {
@@ -458,18 +458,23 @@ public final class HitBoxPlusConfigScreen {
         @Override
         protected void drawValueText(DrawContext context, int mouseX, int mouseY, float delta) {
             TwoActionRow actions = control.option().pendingValue();
-            drawActionButton(context, primaryX(), Text.literal(actions.primaryText()), Formatting.WHITE, isPrimaryHovered(mouseX, mouseY));
-            drawActionButton(context, secondaryX(), Text.literal(actions.secondaryText().get()), actions.secondaryColor().get(), isSecondaryHovered(mouseX, mouseY));
+            drawActionButton(context, primaryX(), Text.literal(actions.primaryText()), 0xFFFFFFFF, isPrimaryHovered(mouseX, mouseY));
+            drawActionButton(context, secondaryX(), Text.literal(actions.secondaryText().get()), textColor(actions.secondaryColor().get()), isSecondaryHovered(mouseX, mouseY));
             if (hovered) {
                 context.setCursor(isAvailable() ? net.minecraft.client.gui.cursor.StandardCursors.POINTING_HAND : net.minecraft.client.gui.cursor.StandardCursors.NOT_ALLOWED);
             }
         }
 
-        private void drawActionButton(DrawContext context, int x, Text text, Formatting color, boolean hovered) {
+        private void drawActionButton(DrawContext context, int x, Text text, int color, boolean hovered) {
             int y = getDimension().y() + getYPadding();
             int height = getDimension().height() - getYPadding() * 2;
             drawButtonRect(context, x, y, x + BUTTON_WIDTH, y + height, hovered && isAvailable(), isAvailable());
-            context.drawCenteredTextWithShadow(textRenderer, text, x + BUTTON_WIDTH / 2, getTextY(), isAvailable() ? color.getColorValue() : inactiveColor);
+            context.drawCenteredTextWithShadow(textRenderer, text, x + BUTTON_WIDTH / 2, getTextY(), isAvailable() ? color : inactiveColor);
+        }
+
+        private int textColor(Formatting formatting) {
+            Integer color = formatting.getColorValue();
+            return color == null ? 0xFFFFFFFF : 0xFF000000 | color;
         }
 
         @Override
