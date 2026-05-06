@@ -14,10 +14,21 @@ public final class GroupHitboxConfig {
     }
 
     public void normalize(HitboxColorConfig fallback) {
-        if (color == null) {
+        if (color == null || isUninitialized(color)) {
             color = fallback;
         }
 
         color.normalize();
+    }
+
+    private static boolean isUninitialized(HitboxColorConfig color) {
+        return color.red == 0
+                && color.green == 0
+                && color.blue == 0
+                && !color.showHitbox
+                && color.hitboxThickness == 0.0F
+                && color.hitboxPattern == null
+                && !color.showEyeLine
+                && !color.showLookDirection;
     }
 }

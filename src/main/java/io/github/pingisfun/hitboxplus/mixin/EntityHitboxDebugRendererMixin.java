@@ -143,8 +143,8 @@ public class EntityHitboxDebugRendererMixin {
             return;
         }
 
-        double dashLength = 0.07D;
-        double gapLength = 0.10D;
+        double dashLength = 0.18D;
+        double gapLength = 0.12D;
         for (double distance = 0.0D; distance < length; distance += dashLength + gapLength) {
             double segmentEnd = Math.min(distance + dashLength, length);
             if (segmentEnd <= distance) {

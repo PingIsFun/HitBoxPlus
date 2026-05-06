@@ -1,7 +1,6 @@
 package io.github.pingisfun.hitboxplus.config;
 
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public final class HitBoxPlusConfig {
 
         for (Map.Entry<String, EntityHitboxConfig> entry : overrides.entrySet()) {
             Identifier id = Identifier.tryParse(entry.getKey());
-            if (id == null || !Registries.ENTITY_TYPE.containsId(id)) {
+            if (id == null) {
                 continue;
             }
 
@@ -172,11 +171,22 @@ public final class HitBoxPlusConfig {
                 return;
             }
 
-            config.normalize(new HitboxColorConfig());
+            GroupHitboxConfig fallback = normalized.getOrDefault(group, new GroupHitboxConfig());
+            config.normalize(copyColor(fallback.color));
             normalized.put(group, config);
         });
 
         return normalized;
+    }
+
+    private static HitboxColorConfig copyColor(HitboxColorConfig color) {
+        HitboxColorConfig copy = new HitboxColorConfig(color.red, color.green, color.blue);
+        copy.showHitbox = color.showHitbox;
+        copy.hitboxThickness = color.hitboxThickness;
+        copy.hitboxPattern = color.hitboxPattern;
+        copy.showEyeLine = color.showEyeLine;
+        copy.showLookDirection = color.showLookDirection;
+        return copy;
     }
 
     private static List<String> normalizePlayerNames(List<String> names) {

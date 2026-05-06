@@ -150,6 +150,7 @@ public final class HitBoxPlusConfigScreen {
         List<String> activeIds = config.entityOverrides.entrySet().stream()
                 .filter(entry -> entry.getValue().enabled)
                 .map(Map.Entry::getKey)
+                .filter(HitBoxPlusConfigScreen::entityTypeExists)
                 .sorted(Comparator.comparing(HitBoxPlusConfigScreen::entityDisplayName))
                 .toList();
 
@@ -380,6 +381,11 @@ public final class HitBoxPlusConfigScreen {
         }
 
         return Registries.ENTITY_TYPE.get(id).getName().getString();
+    }
+
+    private static boolean entityTypeExists(String entityId) {
+        net.minecraft.util.Identifier id = net.minecraft.util.Identifier.tryParse(entityId);
+        return id != null && Registries.ENTITY_TYPE.containsId(id);
     }
 
     private static void refresh(Screen parent) {

@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.state.EntityHitbox;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -44,14 +45,27 @@ public class DebugHitboxCommandRendererMixin {
     }
 
     private static void drawFullBox(MatrixStack matrices, VertexConsumer vertices, Box box, ResolvedHitboxStyle style) {
-        float red = ((style.opaqueArgb() >> 16) & 0xFF) / 255.0F;
-        float green = ((style.opaqueArgb() >> 8) & 0xFF) / 255.0F;
-        float blue = (style.opaqueArgb() & 0xFF) / 255.0F;
-        double expansion = thicknessExpansion(style);
-        int passes = Math.max(1, Math.min(6, Math.round(style.hitboxThickness())));
-        for (int pass = 0; pass < passes; pass++) {
-            VertexRendering.drawBox(matrices.peek(), vertices, box.expand(expansion * pass), red, green, blue, 1.0F);
-        }
+        Vec3d minMinMin = new Vec3d(box.minX, box.minY, box.minZ);
+        Vec3d minMinMax = new Vec3d(box.minX, box.minY, box.maxZ);
+        Vec3d minMaxMin = new Vec3d(box.minX, box.maxY, box.minZ);
+        Vec3d minMaxMax = new Vec3d(box.minX, box.maxY, box.maxZ);
+        Vec3d maxMinMin = new Vec3d(box.maxX, box.minY, box.minZ);
+        Vec3d maxMinMax = new Vec3d(box.maxX, box.minY, box.maxZ);
+        Vec3d maxMaxMin = new Vec3d(box.maxX, box.maxY, box.minZ);
+        Vec3d maxMaxMax = new Vec3d(box.maxX, box.maxY, box.maxZ);
+
+        drawLine(matrices, vertices, minMinMin, maxMinMin, style);
+        drawLine(matrices, vertices, minMinMax, maxMinMax, style);
+        drawLine(matrices, vertices, minMaxMin, maxMaxMin, style);
+        drawLine(matrices, vertices, minMaxMax, maxMaxMax, style);
+        drawLine(matrices, vertices, minMinMin, minMinMax, style);
+        drawLine(matrices, vertices, maxMinMin, maxMinMax, style);
+        drawLine(matrices, vertices, minMaxMin, minMaxMax, style);
+        drawLine(matrices, vertices, maxMaxMin, maxMaxMax, style);
+        drawLine(matrices, vertices, minMinMin, minMaxMin, style);
+        drawLine(matrices, vertices, maxMinMin, maxMaxMin, style);
+        drawLine(matrices, vertices, minMinMax, minMaxMax, style);
+        drawLine(matrices, vertices, maxMinMax, maxMaxMax, style);
     }
 
     private static void drawPatternedBox(MatrixStack matrices, VertexConsumer vertices, Box box, ResolvedHitboxStyle style) {
@@ -84,13 +98,8 @@ public class DebugHitboxCommandRendererMixin {
             return;
         }
 
-        double dashLength = 0.07D;
-        double gapLength = 0.10D;
-        float red = ((style.opaqueArgb() >> 16) & 0xFF) / 255.0F;
-        float green = ((style.opaqueArgb() >> 8) & 0xFF) / 255.0F;
-        float blue = (style.opaqueArgb() & 0xFF) / 255.0F;
-        double expansion = thicknessExpansion(style);
-        int passes = Math.max(1, Math.min(6, Math.round(style.hitboxThickness())));
+        double dashLength = 0.18D;
+        double gapLength = 0.12D;
 
         for (double distance = 0.0D; distance < length; distance += dashLength + gapLength) {
             double segmentEnd = Math.min(distance + dashLength, length);
@@ -100,28 +109,36 @@ public class DebugHitboxCommandRendererMixin {
 
             Vec3d segmentStart = start.lerp(end, distance / length);
             Vec3d segmentFinish = start.lerp(end, segmentEnd / length);
-            for (int pass = 0; pass < passes; pass++) {
-                double offset = expansion * pass;
-                VertexRendering.drawBox(
-                        matrices.peek(),
-                        vertices,
-                        Math.min(segmentStart.x, segmentFinish.x) - offset,
-                        Math.min(segmentStart.y, segmentFinish.y) - offset,
-                        Math.min(segmentStart.z, segmentFinish.z) - offset,
-                        Math.max(segmentStart.x, segmentFinish.x) + offset,
-                        Math.max(segmentStart.y, segmentFinish.y) + offset,
-                        Math.max(segmentStart.z, segmentFinish.z) + offset,
-                        red,
-                        green,
-                        blue,
-                        1.0F
-                );
-            }
+            drawLine(matrices, vertices, segmentStart, segmentFinish, style);
         }
     }
 
-    private static double thicknessExpansion(ResolvedHitboxStyle style) {
-        return Math.max(0.0D, style.hitboxThickness() - 1.0F) * 0.0015D;
+    private static void drawLine(MatrixStack matrices, VertexConsumer vertices, Vec3d start, Vec3d end, ResolvedHitboxStyle style) {
+        int passes = Math.max(1, Math.min(6, Math.round(style.hitboxThickness())));
+        double spacing = 0.002D;
+        for (int pass = 0; pass < passes; pass++) {
+            Vec3d offset = lineOffset(start, end, pass, spacing);
+            VertexRendering.drawVector(
+                    matrices,
+                    vertices,
+                    new Vector3f((float) (start.x + offset.x), (float) (start.y + offset.y), (float) (start.z + offset.z)),
+                    end.subtract(start),
+                    style.opaqueArgb()
+            );
+        }
+    }
+
+    private static Vec3d lineOffset(Vec3d start, Vec3d end, int pass, double spacing) {
+        if (pass == 0) {
+            return Vec3d.ZERO;
+        }
+
+        Vec3d direction = end.subtract(start).normalize();
+        Vec3d axis = Math.abs(direction.y) < 0.9D ? new Vec3d(0.0D, 1.0D, 0.0D) : new Vec3d(1.0D, 0.0D, 0.0D);
+        Vec3d side = direction.crossProduct(axis).normalize();
+        Vec3d up = direction.crossProduct(side).normalize();
+        int ring = (pass + 1) / 2;
+        return (pass % 2 == 1 ? side : up).multiply(ring * spacing);
     }
 
 }

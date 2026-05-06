@@ -63,6 +63,10 @@ public final class RuntimeHitboxLookup {
 
         config.entityOverrides.forEach((id, override) -> {
             Identifier identifier = Identifier.of(id);
+            if (!Registries.ENTITY_TYPE.containsId(identifier)) {
+                return;
+            }
+
             EntityType<?> entityType = Registries.ENTITY_TYPE.get(identifier);
             entityStyles.put(entityType, ResolvedHitboxStyle.fromConfig(override.color));
         });
