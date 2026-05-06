@@ -104,3 +104,18 @@ jobs:
           loaders: fabric
           game-versions: ${{ matrix.minecraft }}
           files: ${{ matrix.file }}
+          dependencies: |-
+            [
+              {
+                "project_id": "1eAoo2KR",
+                "dependency_type": "required"
+              },
+              {
+                "project_id": "P7dR8mSH",
+                "dependency_type": "required"
+              },
+              {
+                "project_id": "mOgUt4GM",
+                "dependency_type": "optional"
+              }
+            ]
