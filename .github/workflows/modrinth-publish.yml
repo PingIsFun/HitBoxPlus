@@ -1,90 +1,106 @@
 name: Publish to Modrinth
 
 on:
-  push:
-    tags:
-      - "v*"
-  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Build Release Artifacts
+    types:
+      - completed
+
+permissions:
+  actions: read
+  contents: read
 
 jobs:
-  publish:
-    name: Publish
+  prepare:
+    name: Prepare Publish Matrix
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up JDK
-        uses: actions/setup-java@v5
+      - name: Download jar artifacts
+        uses: actions/download-artifact@v4
         with:
-          java-version: 21
-          distribution: temurin
-          cache: gradle
+          pattern: hitboxplus-*-jars
+          path: release-jars
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
 
-      - name: Prepare release metadata
-        id: metadata
+      - name: Download release metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: hitboxplus-release-metadata
+          path: release-metadata
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Build publish matrix
+        id: matrix
         shell: bash
         run: |
           set -euo pipefail
 
-          ref="${GITHUB_REF_NAME}"
-          version="${ref#v}"
-          if [ -z "$version" ] || [ "$version" = "$ref" ]; then
-            echo "Release tags must use v<version>, for example v0.2.0" >&2
-            exit 1
-          fi
+          python3 <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
 
-          mapfile -t version_dirs < <(find versions -mindepth 2 -maxdepth 2 -name gradle.properties -printf '%h\n' | sort)
-          if [ "${#version_dirs[@]}" -eq 0 ]; then
-            echo "No Stonecutter version directories found under versions/*/gradle.properties" >&2
-            exit 1
-          fi
+          base_version = Path("release-metadata/version.txt").read_text().strip()
+          game_versions = [
+              line.strip()
+              for line in Path("release-metadata/game_versions.txt").read_text().splitlines()
+              if line.strip()
+          ]
 
-          tasks=()
-          game_versions=()
-          for dir in "${version_dirs[@]}"; do
-            minecraft_version="$(basename "$dir")"
-            tasks+=(":${minecraft_version}:buildAndCollect")
-            game_versions+=("$minecraft_version")
-          done
+          entries = []
+          for game_version in game_versions:
+              expected = sorted(Path("release-jars").glob(f"*+{game_version}.jar"))
+              expected = [path for path in expected if not path.name.endswith("-sources.jar")]
+              if len(expected) != 1:
+                  raise SystemExit(f"Expected one release jar for {game_version}, found {len(expected)}")
 
-          {
-            echo "version=$version"
-            echo "tasks=${tasks[*]}"
-            echo "game_versions<<EOF"
-            printf '%s\n' "${game_versions[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+              version = f"{base_version}+{game_version}"
+              entries.append({
+                  "minecraft": game_version,
+                  "file": expected[0].as_posix(),
+                  "version": version,
+                  "name": f"HitBox+ {version}",
+              })
 
-      - name: Build release jars
-        run: ./gradlew ${{ steps.metadata.outputs.tasks }} -Pmod.version=${{ steps.metadata.outputs.version }}
+          print(f"matrix={json.dumps({'include': entries}, separators=(',', ':'))}")
+          PY
 
-      - name: Locate release jars
-        id: artifacts
+  publish:
+    name: Publish ${{ matrix.minecraft }}
+    runs-on: ubuntu-latest
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+
+    steps:
+      - name: Download jar artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: hitboxplus-*-jars
+          path: release-jars
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify Modrinth file
         shell: bash
-        run: |
-          set -euo pipefail
-
-          mapfile -t jars < <(find "build/libs/${{ steps.metadata.outputs.version }}" -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | sort)
-          if [ "${#jars[@]}" -eq 0 ]; then
-            echo "No release jars found in build/libs/${{ steps.metadata.outputs.version }}" >&2
-            exit 1
-          fi
-
-          {
-            echo "files<<EOF"
-            printf '%s\n' "${jars[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+        run: test -f "${{ matrix.file }}"
 
       - name: Publish to Modrinth
         uses: cloudnode-pro/modrinth-publish@v2
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project: 'hitboxplus'
-          name: HitBox+ ${{ steps.metadata.outputs.version }}
-          version: ${{ steps.metadata.outputs.version }}
+          name: ${{ matrix.name }}
+          version: ${{ matrix.version }}
           loaders: fabric
-          game-versions: ${{ steps.metadata.outputs.game_versions }}
-          files: ${{ steps.artifacts.outputs.files }}
+          game-versions: ${{ matrix.minecraft }}
+          files: ${{ matrix.file }}
