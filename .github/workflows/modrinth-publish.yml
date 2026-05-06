@@ -1,0 +1,90 @@
+name: Publish to Modrinth
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: gradle
+
+      - name: Prepare release metadata
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ref="${GITHUB_REF_NAME}"
+          version="${ref#v}"
+          if [ -z "$version" ] || [ "$version" = "$ref" ]; then
+            echo "Release tags must use v<version>, for example v0.2.0" >&2
+            exit 1
+          fi
+
+          mapfile -t version_dirs < <(find versions -mindepth 2 -maxdepth 2 -name gradle.properties -printf '%h\n' | sort)
+          if [ "${#version_dirs[@]}" -eq 0 ]; then
+            echo "No Stonecutter version directories found under versions/*/gradle.properties" >&2
+            exit 1
+          fi
+
+          tasks=()
+          game_versions=()
+          for dir in "${version_dirs[@]}"; do
+            minecraft_version="$(basename "$dir")"
+            tasks+=(":${minecraft_version}:buildAndCollect")
+            game_versions+=("$minecraft_version")
+          done
+
+          {
+            echo "version=$version"
+            echo "tasks=${tasks[*]}"
+            echo "game_versions<<EOF"
+            printf '%s\n' "${game_versions[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build release jars
+        run: ./gradlew ${{ steps.metadata.outputs.tasks }} -Pmod.version=${{ steps.metadata.outputs.version }}
+
+      - name: Locate release jars
+        id: artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t jars < <(find "build/libs/${{ steps.metadata.outputs.version }}" -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | sort)
+          if [ "${#jars[@]}" -eq 0 ]; then
+            echo "No release jars found in build/libs/${{ steps.metadata.outputs.version }}" >&2
+            exit 1
+          fi
+
+          {
+            echo "files<<EOF"
+            printf '%s\n' "${jars[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Modrinth
+        uses: cloudnode-pro/modrinth-publish@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: ${{ vars.MODRINTH_PROJECT || 'hitboxplus' }}
+          name: HitBox+ ${{ steps.metadata.outputs.version }}
+          version: ${{ steps.metadata.outputs.version }}
+          loaders: fabric
+          game-versions: ${{ steps.metadata.outputs.game_versions }}
+          files: ${{ steps.artifacts.outputs.files }}
