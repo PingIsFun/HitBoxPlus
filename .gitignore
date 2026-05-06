@@ -3,6 +3,8 @@
 build/
 versions/*/build/
 versions/*/.fabric/
+logs/
+versions/*/logs/
 run/
 out/
 
