@@ -1,20 +1,20 @@
 package io.github.pingisfun.hitboxplus.config;
 
 import dev.isxander.yacl3.api.NameableEnum;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public enum HitboxPattern implements NameableEnum {
     FULL("Full"),
     DOTTED("Dotted");
 
-    private final Text displayName;
+    private final Component displayName;
 
     HitboxPattern(String displayName) {
-        this.displayName = Text.literal(displayName);
+        this.displayName = Component.literal(displayName);
     }
 
     @Override
-    public Text getDisplayName() {
+    public Component getDisplayName() {
         return displayName;
     }
 }

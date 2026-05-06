@@ -1,7 +1,7 @@
 plugins {
     id("java")
     `maven-publish`
-    id("fabric-loom")
+    id("net.fabricmc.fabric-loom")
 }
 
 version = "${property("mod.version")}+${stonecutter.current.version}"
@@ -22,15 +22,14 @@ repositories {
 
 dependencies {
     minecraft("com.mojang:minecraft:${stonecutter.current.version}")
-    mappings("net.fabricmc:yarn:${property("deps.yarn")}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+    implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
-    modImplementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}") {
+    implementation("maven.modrinth:yacl:${property("yacl_version")}") {
         exclude(group = "net.fabricmc.fabric-api")
     }
-    modImplementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
-    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
+    implementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
+    runtimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
 
     testImplementation("net.fabricmc:fabric-loader-junit:${property("deps.fabric_loader")}")
 }
@@ -48,8 +47,8 @@ loom {
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks {
@@ -69,7 +68,7 @@ tasks {
 
     register<Copy>("buildAndCollect") {
         group = "build"
-        from(remapJar.map { it.archiveFile }, remapSourcesJar.map { it.archiveFile })
+        from(jar.map { it.archiveFile }, named<Jar>("sourcesJar").map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }

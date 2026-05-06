@@ -3,10 +3,10 @@ package io.github.pingisfun.hitboxplus.runtime;
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfig;
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfigManager;
 import io.github.pingisfun.hitboxplus.config.PlayerRelation;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Formatting;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public final class PlayerRelationController {
         HitBoxPlusConfigManager.save();
     }
 
-    public static PlayerRelation cycle(PlayerEntity player) {
+    public static PlayerRelation cycle(Player player) {
         String playerName = player.getName().getString();
         HitBoxPlusConfig config = HitBoxPlusConfigManager.config();
         PlayerRelation current = config.playerRelation(playerName);
@@ -46,53 +46,53 @@ public final class PlayerRelationController {
     }
 
     public static void announce(String playerName, PlayerRelation relation) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
             return;
         }
 
-        client.player.sendMessage(relationText(playerName, relation), false);
+        client.player.sendSystemMessage(relationText(playerName, relation));
     }
 
-    public static Text relationText(String playerName, PlayerRelation relation) {
+    public static Component relationText(String playerName, PlayerRelation relation) {
         String relationName = relation == null ? "neutral" : relation.name().toLowerCase(java.util.Locale.ROOT);
-        Formatting relationColor = relation == PlayerRelation.FRIEND
-                ? Formatting.GREEN
-                : relation == PlayerRelation.ENEMY ? Formatting.RED : Formatting.GRAY;
+        ChatFormatting relationColor = relation == PlayerRelation.FRIEND
+                ? ChatFormatting.GREEN
+                : relation == PlayerRelation.ENEMY ? ChatFormatting.RED : ChatFormatting.GRAY;
         return prefix()
-                .append(Text.literal(playerName).formatted(Formatting.YELLOW))
-                .append(Text.literal(" is now ").formatted(Formatting.GRAY))
-                .append(Text.literal(relationName).formatted(relationColor))
-                .append(Text.literal(".").formatted(Formatting.GRAY));
+                .append(Component.literal(playerName).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(" is now ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(relationName).withStyle(relationColor))
+                .append(Component.literal(".").withStyle(ChatFormatting.GRAY));
     }
 
-    public static Text removedText(String playerName, PlayerRelation relation) {
+    public static Component removedText(String playerName, PlayerRelation relation) {
         String relationName = relation.name().toLowerCase(java.util.Locale.ROOT);
-        Formatting relationColor = relation == PlayerRelation.FRIEND ? Formatting.GREEN : Formatting.RED;
+        ChatFormatting relationColor = relation == PlayerRelation.FRIEND ? ChatFormatting.GREEN : ChatFormatting.RED;
         return prefix()
-                .append(Text.literal("Removed ").formatted(Formatting.GRAY))
-                .append(Text.literal(playerName).formatted(Formatting.YELLOW))
-                .append(Text.literal(" from ").formatted(Formatting.GRAY))
-                .append(Text.literal(relationName + "s").formatted(relationColor))
-                .append(Text.literal(".").formatted(Formatting.GRAY));
+                .append(Component.literal("Removed ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(playerName).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(" from ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(relationName + "s").withStyle(relationColor))
+                .append(Component.literal(".").withStyle(ChatFormatting.GRAY));
     }
 
-    public static Text listText(PlayerRelation relation, List<String> players) {
+    public static Component listText(PlayerRelation relation, List<String> players) {
         String relationName = relation.name().toLowerCase(java.util.Locale.ROOT) + "s";
-        Formatting relationColor = relation == PlayerRelation.FRIEND ? Formatting.GREEN : Formatting.RED;
+        ChatFormatting relationColor = relation == PlayerRelation.FRIEND ? ChatFormatting.GREEN : ChatFormatting.RED;
         if (players.isEmpty()) {
             return prefix()
-                    .append(Text.literal("No ").formatted(Formatting.GRAY))
-                    .append(Text.literal(relationName).formatted(relationColor))
-                    .append(Text.literal(" configured.").formatted(Formatting.GRAY));
+                    .append(Component.literal("No ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(relationName).withStyle(relationColor))
+                    .append(Component.literal(" configured.").withStyle(ChatFormatting.GRAY));
         }
 
         return prefix()
-                .append(Text.literal(relationName + ": ").formatted(relationColor))
-                .append(Text.literal(String.join(", ", players)).formatted(Formatting.YELLOW));
+                .append(Component.literal(relationName + ": ").withStyle(relationColor))
+                .append(Component.literal(String.join(", ", players)).withStyle(ChatFormatting.YELLOW));
     }
 
-    private static net.minecraft.text.MutableText prefix() {
-        return Text.literal("[HitBox+] ").formatted(Formatting.AQUA);
+    private static net.minecraft.network.chat.MutableComponent prefix() {
+        return Component.literal("[HitBox+] ").withStyle(ChatFormatting.AQUA);
     }
 }

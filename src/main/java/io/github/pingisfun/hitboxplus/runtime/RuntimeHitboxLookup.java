@@ -4,11 +4,11 @@ import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfig;
 import io.github.pingisfun.hitboxplus.config.GroupHitboxConfig;
 import io.github.pingisfun.hitboxplus.config.PlayerRelation;
 import io.github.pingisfun.hitboxplus.data.EntityGroupData;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.scores.Team;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public final class RuntimeHitboxLookup {
         ResolvedHitboxStyle defaultStyle = ResolvedHitboxStyle.fromConfig(config.defaultHitbox);
         Map<EntityType<?>, ResolvedHitboxStyle> entityStyles = new IdentityHashMap<>();
 
-        Registries.ENTITY_TYPE.forEach(entityType -> entityStyles.put(entityType, defaultStyle));
+        BuiltInRegistries.ENTITY_TYPE.forEach(entityType -> entityStyles.put(entityType, defaultStyle));
         EntityGroupData.ENTITY_GROUPS.forEach((entityType, group) -> {
             GroupHitboxConfig groupConfig = config.groupHitboxes.get(group);
             if (groupConfig != null && groupConfig.enabled) {
@@ -62,12 +62,12 @@ public final class RuntimeHitboxLookup {
         });
 
         config.entityOverrides.forEach((id, override) -> {
-            Identifier identifier = Identifier.of(id);
-            if (!Registries.ENTITY_TYPE.containsId(identifier)) {
+            Identifier identifier = Identifier.parse(id);
+            if (!BuiltInRegistries.ENTITY_TYPE.containsKey(identifier)) {
                 return;
             }
 
-            EntityType<?> entityType = Registries.ENTITY_TYPE.get(identifier);
+            EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.getValue(identifier);
             entityStyles.put(entityType, ResolvedHitboxStyle.fromConfig(override.color));
         });
 
@@ -107,7 +107,7 @@ public final class RuntimeHitboxLookup {
         return neutralPlayerStyle;
     }
 
-    public ResolvedHitboxStyle forPlayer(PlayerEntity player) {
+    public ResolvedHitboxStyle forPlayer(Player player) {
         PlayerRelation relation = playerRelations.get(normalizePlayerName(player.getName().getString()));
         if (relation == PlayerRelation.FRIEND) {
             return friendPlayerStyle;
@@ -144,11 +144,11 @@ public final class RuntimeHitboxLookup {
         return playerName.strip().toLowerCase(Locale.ROOT);
     }
 
-    private static Integer teamColor(PlayerEntity player) {
-        Team team = player.getScoreboardTeam();
+    private static Integer teamColor(Player player) {
+        Team team = player.getTeam();
         if (team == null) {
             return null;
         }
-        return team.getColor().getColorValue();
+        return team.getColor().getColor();
     }
 }

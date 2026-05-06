@@ -17,13 +17,16 @@ import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.FloatSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.ChatFormatting;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,7 +45,7 @@ public final class HitBoxPlusConfigScreen {
         HitBoxPlusConfig defaults = HitBoxPlusConfigManager.defaults();
 
         YetAnotherConfigLib.Builder builder = YetAnotherConfigLib.createBuilder()
-                .title(Text.literal("HitBox+"))
+                .title(Component.literal("HitBox+"))
                 .save(HitBoxPlusConfigManager::save);
 
         List<ConfigCategory> categories = List.of(
@@ -64,12 +67,12 @@ public final class HitBoxPlusConfigScreen {
 
     private static ConfigCategory generalCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
-                .name(Text.literal("General"))
-                .tooltip(Text.literal("Global behavior and fallback color."))
+                .name(Component.literal("General"))
+                .tooltip(Component.literal("Global behavior and fallback color."))
                 .group(OptionGroup.createBuilder()
-                        .name(Text.literal("General"))
+                        .name(Component.literal("General"))
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.literal("Enable mod"))
+                                .name(Component.literal("Enable mod"))
                                 .description(description("Turn all custom hitbox colors on or off."))
                                 .binding(defaults.isEnabled(), config::isEnabled, config::setEnabled)
                                 .controller(TickBoxControllerBuilder::create)
@@ -81,8 +84,8 @@ public final class HitBoxPlusConfigScreen {
 
     private static ConfigCategory playersCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
-                .name(Text.literal("Players"))
-                .tooltip(Text.literal("Self, friend, and enemy player colors."))
+                .name(Component.literal("Players"))
+                .tooltip(Component.literal("Self, friend, and enemy player colors."))
                 .options(createPlayerOptions(parent, config, defaults))
                 .group(playerList("Friends", defaults.friends, () -> config.friends, value -> config.friends = new ArrayList<>(value)))
                 .group(playerList("Enemies", defaults.enemies, () -> config.enemies, value -> config.enemies = new ArrayList<>(value)))
@@ -91,16 +94,16 @@ public final class HitBoxPlusConfigScreen {
 
     private static ConfigCategory groupsCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
-                .name(Text.literal("Groups"))
-                .tooltip(Text.literal("Broad defaults for passive mobs, hostile mobs, bosses, and other groups."))
+                .name(Component.literal("Groups"))
+                .tooltip(Component.literal("Broad defaults for passive mobs, hostile mobs, bosses, and other groups."))
                 .groups(createGroupOptions(parent, config, defaults))
                 .build();
     }
 
     private static ConfigCategory entitiesCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
-                .name(Text.literal("Entities"))
-                .tooltip(Text.literal("Per-entity overrides. Active overrides are shown first."))
+                .name(Component.literal("Entities"))
+                .tooltip(Component.literal("Per-entity overrides. Active overrides are shown first."))
                 .groups(createEntityOptions(parent, config, defaults))
                 .build();
     }
@@ -108,7 +111,7 @@ public final class HitBoxPlusConfigScreen {
     private static List<Option<?>> createPlayerOptions(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return List.of(
                 Option.<Boolean>createBuilder()
-                        .name(Text.literal("Use team colors"))
+                        .name(Component.literal("Use team colors"))
                         .description(description("Warning: friend/enemy player styles override team colors. Team colors override neutral player hitboxes."))
                         .binding(defaults.usePlayerTeamColors, () -> config.usePlayerTeamColors, value -> config.usePlayerTeamColors = value)
                         .controller(TickBoxControllerBuilder::create)
@@ -122,7 +125,7 @@ public final class HitBoxPlusConfigScreen {
 
     private static List<OptionGroup> createGroupOptions(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         OptionGroup.Builder builder = OptionGroup.createBuilder()
-                .name(Text.literal("Groups"))
+                .name(Component.literal("Groups"))
                 .description(description("Each group can be enabled or disabled, and its style can be edited."))
                 .collapsed(false);
         for (EntityGroup group : EntityGroup.values()) {
@@ -131,14 +134,14 @@ public final class HitBoxPlusConfigScreen {
             builder.option(twoActionRow(
                     group.displayName(),
                     "Edit",
-                    () -> MinecraftClient.getInstance().setScreen(styleScreen(
+                    () -> Minecraft.getInstance().setScreen(styleScreen(
                             create(parent, HitBoxPlusConfigManager.config(), InitialCategory.GROUPS),
                             group.displayName(),
                             defaultConfig.color,
                             groupConfig.color
                     )),
                     () -> groupConfig.enabled ? "Enabled" : "Disabled",
-                    () -> groupConfig.enabled ? Formatting.GREEN : Formatting.RED,
+                    () -> groupConfig.enabled ? ChatFormatting.GREEN : ChatFormatting.RED,
                     () -> {
                         groupConfig.enabled = !groupConfig.enabled;
                         HitBoxPlusConfigManager.save();
@@ -164,14 +167,14 @@ public final class HitBoxPlusConfigScreen {
 
     private static OptionGroup activeEntityOverridesGroup(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults, List<String> activeIds) {
         OptionGroup.Builder builder = OptionGroup.createBuilder()
-                .name(Text.literal("Active overrides"))
+                .name(Component.literal("Active overrides"))
                 .description(description("Only enabled entity-specific rules are shown here."))
                 .collapsed(false);
 
         if (activeIds.isEmpty()) {
             builder.option(ButtonOption.createBuilder()
-                    .name(Text.literal("No active overrides"))
-                    .text(Text.literal("None"))
+                    .name(Component.literal("No active overrides"))
+                    .text(Component.literal("None"))
                     .available(false)
                     .action((screen, option) -> {
                     })
@@ -199,7 +202,7 @@ public final class HitBoxPlusConfigScreen {
 
     private static OptionGroup addEntityOverridesGroup(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults, List<String> activeIds) {
         OptionGroup.Builder builder = OptionGroup.createBuilder()
-                .name(Text.literal("Add entity override"))
+                .name(Component.literal("Add entity override"))
                 .description(description("Shows every entity without an active override. Added entities move to Active overrides."))
                 .collapsed(false);
 
@@ -208,10 +211,10 @@ public final class HitBoxPlusConfigScreen {
                 continue;
             }
 
-            EntityType<?> entityType = Registries.ENTITY_TYPE.get(net.minecraft.util.Identifier.of(id));
+            EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(id));
             builder.option(ButtonOption.createBuilder()
-                    .name(entityType.getName())
-                    .text(Text.literal("Add"))
+                    .name(entityType.getDescription())
+                    .text(Component.literal("Add"))
                     .action((screen, option) -> {
                         config.enableEntityOverride(id);
                         refresh(parent);
@@ -220,11 +223,12 @@ public final class HitBoxPlusConfigScreen {
         }
 
         builder.option(Option.<String>createBuilder()
-                .name(Text.literal("Custom entity id"))
+                .name(Component.literal("Custom entity id"))
                 .description(description("Use a full entity id such as minecraft:zombie. Saving validates the id."))
                 .binding("", () -> "", value -> {
                     String id = value.strip();
-                    if (Registries.ENTITY_TYPE.containsId(net.minecraft.util.Identifier.tryParse(id))) {
+                    Identifier identifier = Identifier.tryParse(id);
+                    if (identifier != null && BuiltInRegistries.ENTITY_TYPE.containsKey(identifier)) {
                         config.enableEntityOverride(id);
                         HitBoxPlusConfigManager.save();
                     }
@@ -236,9 +240,9 @@ public final class HitBoxPlusConfigScreen {
     }
 
     private static List<String> availableEntityIds(List<String> activeIds) {
-        return Registries.ENTITY_TYPE.stream()
+        return BuiltInRegistries.ENTITY_TYPE.stream()
                 .filter(entityType -> entityType != EntityType.PLAYER)
-                .map(entityType -> Registries.ENTITY_TYPE.getId(entityType).toString())
+                .map(entityType -> BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString())
                 .filter(id -> !activeIds.contains(id))
                 .sorted(Comparator.comparing(HitBoxPlusConfigScreen::entityDisplayName))
                 .toList();
@@ -263,9 +267,9 @@ public final class HitBoxPlusConfigScreen {
             String screenName
     ) {
         return ButtonOption.createBuilder()
-                .name(Text.literal(rowName))
-                .text(Text.literal("Edit"))
-                .action((screen, option) -> MinecraftClient.getInstance().setScreen(
+                .name(Component.literal(rowName))
+                .text(Component.literal("Edit"))
+                .action((screen, option) -> Minecraft.getInstance().setScreen(
                         styleScreen(
                                 create(parent, HitBoxPlusConfigManager.config(), returnCategory),
                                 screenName,
@@ -278,12 +282,12 @@ public final class HitBoxPlusConfigScreen {
 
     private static Screen styleScreen(Screen parent, String name, HitboxColorConfig defaults, HitboxColorConfig config) {
         YetAnotherConfigLib yacl = YetAnotherConfigLib.createBuilder()
-                .title(Text.literal("HitBox+ - " + name))
+                .title(Component.literal("HitBox+ - " + name))
                 .save(HitBoxPlusConfigManager::save)
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.literal("Style"))
+                        .name(Component.literal("Style"))
                         .group(OptionGroup.createBuilder()
-                                .name(Text.literal(name))
+                                .name(Component.literal(name))
                                 .options(styleOptions("", defaults, config))
                                 .build())
                         .build())
@@ -302,14 +306,14 @@ public final class HitBoxPlusConfigScreen {
         return twoActionRow(
                 displayName,
                 "Edit",
-                () -> MinecraftClient.getInstance().setScreen(styleScreen(
+                () -> Minecraft.getInstance().setScreen(styleScreen(
                         create(parent, HitBoxPlusConfigManager.config(), InitialCategory.ENTITIES),
                         displayName,
                         defaults,
                         config
                 )),
                 () -> "Remove",
-                () -> Formatting.RED,
+                () -> ChatFormatting.RED,
                 disableAction
         );
     }
@@ -319,12 +323,12 @@ public final class HitBoxPlusConfigScreen {
             String primaryText,
             Runnable primaryAction,
             java.util.function.Supplier<String> secondaryText,
-            java.util.function.Supplier<Formatting> secondaryColor,
+            java.util.function.Supplier<ChatFormatting> secondaryColor,
             Runnable secondaryAction
     ) {
         TwoActionRow actions = new TwoActionRow(primaryText, primaryAction, secondaryText, secondaryColor, secondaryAction);
         return Option.<TwoActionRow>createBuilder()
-                .name(Text.literal(rowName))
+                .name(Component.literal(rowName))
                 .binding(actions, () -> actions, ignored -> {
                 })
                 .customController(TwoActionRowController::new)
@@ -335,30 +339,30 @@ public final class HitBoxPlusConfigScreen {
         return List.of(
                 colorOption(prefix + "Color", defaults, config),
                 Option.<Boolean>createBuilder()
-                        .name(Text.literal(prefix + "Show hitbox"))
+                        .name(Component.literal(prefix + "Show hitbox"))
                         .binding(defaults.showHitbox, () -> config.showHitbox, value -> config.showHitbox = value)
                         .controller(TickBoxControllerBuilder::create)
                         .build(),
                 Option.<Float>createBuilder()
-                        .name(Text.literal(prefix + "Thickness"))
+                        .name(Component.literal(prefix + "Thickness"))
                         .binding(defaults.hitboxThickness, () -> config.hitboxThickness, value -> config.hitboxThickness = value)
                         .controller(option -> FloatSliderControllerBuilder.create(option)
                                 .range(HitboxColorConfig.MIN_HITBOX_THICKNESS, HitboxColorConfig.MAX_HITBOX_THICKNESS)
                                 .step(0.5F)
-                                .formatValue(value -> Text.literal(String.format(java.util.Locale.ROOT, "%.1f", value))))
+                                .formatValue(value -> Component.literal(String.format(java.util.Locale.ROOT, "%.1f", value))))
                         .build(),
                 Option.<HitboxPattern>createBuilder()
-                        .name(Text.literal(prefix + "Pattern"))
+                        .name(Component.literal(prefix + "Pattern"))
                         .binding(defaults.hitboxPattern, () -> config.hitboxPattern, value -> config.hitboxPattern = value)
                         .controller(option -> EnumControllerBuilder.create(option).enumClass(HitboxPattern.class))
                         .build(),
                 Option.<Boolean>createBuilder()
-                        .name(Text.literal(prefix + "Eye line"))
+                        .name(Component.literal(prefix + "Eye line"))
                         .binding(defaults.showEyeLine, () -> config.showEyeLine, value -> config.showEyeLine = value)
                         .controller(TickBoxControllerBuilder::create)
                         .build(),
                 Option.<Boolean>createBuilder()
-                        .name(Text.literal(prefix + "Look direction"))
+                        .name(Component.literal(prefix + "Look direction"))
                         .binding(defaults.showLookDirection, () -> config.showLookDirection, value -> config.showLookDirection = value)
                         .controller(TickBoxControllerBuilder::create)
                         .build()
@@ -367,33 +371,33 @@ public final class HitBoxPlusConfigScreen {
 
     private static Option<java.awt.Color> colorOption(String name, HitboxColorConfig defaults, HitboxColorConfig config) {
         return Option.<java.awt.Color>createBuilder()
-                .name(Text.literal(name))
+                .name(Component.literal(name))
                 .binding(defaults.toAwtColor(), config::toAwtColor, config::setAwtColor)
                 .controller(option -> ColorControllerBuilder.create(option).allowAlpha(false))
                 .build();
     }
 
     private static OptionDescription description(String text) {
-        return OptionDescription.of(Text.literal(text));
+        return OptionDescription.of(Component.literal(text));
     }
 
     private static String entityDisplayName(String entityId) {
-        net.minecraft.util.Identifier id = net.minecraft.util.Identifier.tryParse(entityId);
-        if (id == null || !Registries.ENTITY_TYPE.containsId(id)) {
+        Identifier id = Identifier.tryParse(entityId);
+        if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
             return entityId;
         }
 
-        return Registries.ENTITY_TYPE.get(id).getName().getString();
+        return BuiltInRegistries.ENTITY_TYPE.getValue(id).getDescription().getString();
     }
 
     private static boolean entityTypeExists(String entityId) {
-        net.minecraft.util.Identifier id = net.minecraft.util.Identifier.tryParse(entityId);
-        return id != null && Registries.ENTITY_TYPE.containsId(id);
+        Identifier id = Identifier.tryParse(entityId);
+        return id != null && BuiltInRegistries.ENTITY_TYPE.containsKey(id);
     }
 
     private static void refresh(Screen parent) {
         HitBoxPlusConfigManager.save();
-        MinecraftClient.getInstance().setScreen(create(parent, HitBoxPlusConfigManager.config(), InitialCategory.ENTITIES));
+        Minecraft.getInstance().setScreen(create(parent, HitBoxPlusConfigManager.config(), InitialCategory.ENTITIES));
     }
 
     private enum InitialCategory {
@@ -416,7 +420,7 @@ public final class HitBoxPlusConfigScreen {
             java.util.function.Consumer<List<String>> setter
     ) {
         return ListOption.<String>createBuilder()
-                .name(Text.literal(name))
+                .name(Component.literal(name))
                 .binding(defaults, getter, setter)
                 .controller(StringControllerBuilder::create)
                 .initial("")
@@ -428,7 +432,7 @@ public final class HitBoxPlusConfigScreen {
             String primaryText,
             Runnable primaryAction,
             java.util.function.Supplier<String> secondaryText,
-            java.util.function.Supplier<Formatting> secondaryColor,
+            java.util.function.Supplier<ChatFormatting> secondaryColor,
             Runnable secondaryAction
     ) {
     }
@@ -446,8 +450,8 @@ public final class HitBoxPlusConfigScreen {
         }
 
         @Override
-        public Text formatValue() {
-            return Text.literal(option.pendingValue().primaryText());
+        public Component formatValue() {
+            return Component.literal(option.pendingValue().primaryText());
         }
 
         @Override
@@ -465,34 +469,34 @@ public final class HitBoxPlusConfigScreen {
         }
 
         @Override
-        protected void drawValueText(DrawContext context, int mouseX, int mouseY, float delta) {
+        protected void extractValueText(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
             TwoActionRow actions = control.option().pendingValue();
-            drawActionButton(context, primaryX(), Text.literal(actions.primaryText()), 0xFFFFFFFF, isPrimaryHovered(mouseX, mouseY));
-            drawActionButton(context, secondaryX(), Text.literal(actions.secondaryText().get()), textColor(actions.secondaryColor().get()), isSecondaryHovered(mouseX, mouseY));
-            //? if >=1.21.9 {
+            drawActionButton(context, primaryX(), Component.literal(actions.primaryText()), 0xFFFFFFFF, isPrimaryHovered(mouseX, mouseY));
+            drawActionButton(context, secondaryX(), Component.literal(actions.secondaryText().get()), textColor(actions.secondaryColor().get()), isSecondaryHovered(mouseX, mouseY));
             if (hovered) {
-                context.setCursor(isAvailable() ? net.minecraft.client.gui.cursor.StandardCursors.POINTING_HAND : net.minecraft.client.gui.cursor.StandardCursors.NOT_ALLOWED);
+                context.requestCursor(isAvailable() ? CursorTypes.POINTING_HAND : CursorTypes.NOT_ALLOWED);
             }
-            //?}
         }
 
-        private void drawActionButton(DrawContext context, int x, Text text, int color, boolean hovered) {
+        private void drawActionButton(GuiGraphicsExtractor context, int x, Component text, int color, boolean hovered) {
             int y = getDimension().y() + getYPadding();
             int height = getDimension().height() - getYPadding() * 2;
             drawButtonRect(context, x, y, x + BUTTON_WIDTH, y + height, hovered && isAvailable(), isAvailable());
-            context.drawCenteredTextWithShadow(textRenderer, text, x + BUTTON_WIDTH / 2, getTextY(), isAvailable() ? color : inactiveColor);
+            context.centeredText(textRenderer, text, x + BUTTON_WIDTH / 2, getTextY(), isAvailable() ? color : inactiveColor);
         }
 
-        private int textColor(Formatting formatting) {
-            Integer color = formatting.getColorValue();
+        private int textColor(ChatFormatting formatting) {
+            Integer color = formatting.getColor();
             return color == null ? 0xFFFFFFFF : 0xFF000000 | color;
         }
 
         @Override
-        public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
             if (!isAvailable()) {
                 return false;
             }
+            double mouseX = event.x();
+            double mouseY = event.y();
             if (isPrimaryHovered(mouseX, mouseY)) {
                 playDownSound();
                 control.option().pendingValue().primaryAction().run();

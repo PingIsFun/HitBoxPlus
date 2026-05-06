@@ -4,14 +4,14 @@ import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfigManager;
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfigScreen;
 import io.github.pingisfun.hitboxplus.integration.HitBoxPlusClientCommands;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HitBoxPlus implements ClientModInitializer {
     public static final String MOD_ID = "hitboxplus";
     public static final String VERSION = /*$ mod_version*/ "0.1.0";
-    public static final String MINECRAFT = /*$ minecraft*/ "1.21.11";
+    public static final String MINECRAFT = /*$ minecraft*/ "26.1";
     public static final Logger LOGGER = LoggerFactory.getLogger("HitBoxPlus");
 
     @Override

@@ -1,7 +1,7 @@
 package io.github.pingisfun.hitboxplus.config;
 
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

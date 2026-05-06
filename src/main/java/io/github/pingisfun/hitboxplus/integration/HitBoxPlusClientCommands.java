@@ -6,9 +6,9 @@ import io.github.pingisfun.hitboxplus.config.PlayerRelation;
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfigManager;
 import io.github.pingisfun.hitboxplus.runtime.PlayerRelationController;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.command.CommandSource;
+import net.minecraft.commands.SharedSuggestionProvider;
 
 import com.mojang.authlib.GameProfile;
 import java.util.List;
@@ -20,7 +20,7 @@ public final class HitBoxPlusClientCommands {
 
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                ClientCommandManager.literal("hitboxplus")
+                ClientCommands.literal("hitboxplus")
                         .then(relationCommand("friend", PlayerRelation.FRIEND))
                         .then(relationCommand("enemy", PlayerRelation.ENEMY))
         ));
@@ -30,16 +30,16 @@ public final class HitBoxPlusClientCommands {
             String name,
             PlayerRelation relation
     ) {
-        return ClientCommandManager.literal(name)
-                .then(ClientCommandManager.literal("add")
-                        .then(ClientCommandManager.argument("player", StringArgumentType.word())
-                                .suggests((context, builder) -> CommandSource.suggestMatching(onlinePlayerNames(context), builder))
+        return ClientCommands.literal(name)
+                .then(ClientCommands.literal("add")
+                        .then(ClientCommands.argument("player", StringArgumentType.word())
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(onlinePlayerNames(context), builder))
                                 .executes(context -> setRelation(context, relation))))
-                .then(ClientCommandManager.literal("remove")
-                        .then(ClientCommandManager.argument("player", StringArgumentType.word())
-                                .suggests((context, builder) -> CommandSource.suggestMatching(configuredPlayerNames(relation), builder))
+                .then(ClientCommands.literal("remove")
+                        .then(ClientCommands.argument("player", StringArgumentType.word())
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(configuredPlayerNames(relation), builder))
                                 .executes(context -> removeRelation(context, relation))))
-                .then(ClientCommandManager.literal("list")
+                .then(ClientCommands.literal("list")
                         .executes(context -> listRelation(context, relation)));
     }
 
@@ -70,16 +70,12 @@ public final class HitBoxPlusClientCommands {
             return Stream.empty();
         }
 
-        return context.getSource().getClient().player.networkHandler.getListedPlayerListEntries().stream()
+        return context.getSource().getClient().player.connection.getListedOnlinePlayers().stream()
                 .map(entry -> profileName(entry.getProfile()));
     }
 
     private static String profileName(GameProfile profile) {
-        //? if >=1.21.9 {
         return profile.name();
-        //?} else {
-        /*return profile.getName();
-        *///?}
     }
 
     private static List<String> configuredPlayerNames(PlayerRelation relation) {

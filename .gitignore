@@ -1,6 +1,8 @@
 .gradle/
+.fabric/
 build/
 versions/*/build/
+versions/*/.fabric/
 run/
 out/
 

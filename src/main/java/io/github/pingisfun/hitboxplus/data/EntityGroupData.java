@@ -1,9 +1,9 @@
 package io.github.pingisfun.hitboxplus.data;
 
 import io.github.pingisfun.hitboxplus.config.EntityGroup;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntityType;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -56,9 +56,9 @@ public final class EntityGroupData {
 
     private static void addAll(Map<EntityType<?>, EntityGroup> groups, EntityGroup group, String... ids) {
         for (String id : ids) {
-            Identifier identifier = Identifier.ofVanilla(id);
-            if (Registries.ENTITY_TYPE.containsId(identifier)) {
-                groups.put(Registries.ENTITY_TYPE.get(identifier), group);
+            Identifier identifier = Identifier.withDefaultNamespace(id);
+            if (BuiltInRegistries.ENTITY_TYPE.containsKey(identifier)) {
+                groups.put(BuiltInRegistries.ENTITY_TYPE.getValue(identifier), group);
             }
         }
     }

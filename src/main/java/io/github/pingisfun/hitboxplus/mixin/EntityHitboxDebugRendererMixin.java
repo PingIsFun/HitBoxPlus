@@ -1,4 +1,3 @@
-//? if >=1.21.11 {
 package io.github.pingisfun.hitboxplus.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -7,33 +6,33 @@ import io.github.pingisfun.hitboxplus.config.HitboxPattern;
 import io.github.pingisfun.hitboxplus.runtime.ResolvedHitboxStyle;
 import io.github.pingisfun.hitboxplus.runtime.RuntimeHitboxLookup;
 import io.github.pingisfun.hitboxplus.runtime.RuntimeHitboxState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.DrawStyle;
-import net.minecraft.client.render.debug.EntityHitboxDebugRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.debug.gizmo.GizmoDrawing;
-import net.minecraft.world.debug.gizmo.VisibilityConfigurable;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.debug.EntityHitboxDebugRenderer;
+import net.minecraft.gizmos.GizmoProperties;
+import net.minecraft.gizmos.GizmoStyle;
+import net.minecraft.gizmos.Gizmos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(EntityHitboxDebugRenderer.class)
 public class EntityHitboxDebugRendererMixin {
     @WrapOperation(
-            method = "drawHitbox",
+            method = "showHitboxes",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/debug/gizmo/GizmoDrawing;box(Lnet/minecraft/util/math/Box;Lnet/minecraft/client/render/DrawStyle;)Lnet/minecraft/world/debug/gizmo/VisibilityConfigurable;",
+                    target = "Lnet/minecraft/gizmos/Gizmos;cuboid(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/gizmos/GizmoStyle;)Lnet/minecraft/gizmos/GizmoProperties;",
                     ordinal = 0
             )
     )
-    private VisibilityConfigurable hitboxplus$drawPrimaryHitbox(
-            Box box,
-            DrawStyle drawStyle,
-            Operation<VisibilityConfigurable> original,
+    private GizmoProperties hitboxplus$drawPrimaryHitbox(
+            AABB box,
+            GizmoStyle drawStyle,
+            Operation<GizmoProperties> original,
             Entity entity,
             float tickProgress,
             boolean inLocalServer
@@ -49,7 +48,7 @@ public class EntityHitboxDebugRendererMixin {
         }
 
         if (style.hitboxPattern() == HitboxPattern.FULL) {
-            return original.call(box, DrawStyle.stroked(style.opaqueArgb(), style.hitboxThickness()));
+            return original.call(box, GizmoStyle.stroke(style.opaqueArgb(), style.hitboxThickness()));
         }
 
         drawPatternedBox(box, style);
@@ -57,17 +56,17 @@ public class EntityHitboxDebugRendererMixin {
     }
 
     @WrapOperation(
-            method = "drawHitbox",
+            method = "showHitboxes",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/debug/gizmo/GizmoDrawing;box(Lnet/minecraft/util/math/Box;Lnet/minecraft/client/render/DrawStyle;)Lnet/minecraft/world/debug/gizmo/VisibilityConfigurable;",
+                    target = "Lnet/minecraft/gizmos/Gizmos;cuboid(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/gizmos/GizmoStyle;)Lnet/minecraft/gizmos/GizmoProperties;",
                     ordinal = 2
             )
     )
-    private VisibilityConfigurable hitboxplus$drawEyeLine(
-            Box box,
-            DrawStyle drawStyle,
-            Operation<VisibilityConfigurable> original,
+    private GizmoProperties hitboxplus$drawEyeLine(
+            AABB box,
+            GizmoStyle drawStyle,
+            Operation<GizmoProperties> original,
             Entity entity,
             float tickProgress,
             boolean inLocalServer
@@ -85,18 +84,18 @@ public class EntityHitboxDebugRendererMixin {
     }
 
     @WrapOperation(
-            method = "drawHitbox",
+            method = "showHitboxes",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/debug/gizmo/GizmoDrawing;arrow(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;I)Lnet/minecraft/world/debug/gizmo/VisibilityConfigurable;",
+                    target = "Lnet/minecraft/gizmos/Gizmos;arrow(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;I)Lnet/minecraft/gizmos/GizmoProperties;",
                     ordinal = 0
             )
     )
-    private VisibilityConfigurable hitboxplus$drawLookDirection(
-            Vec3d start,
-            Vec3d end,
+    private GizmoProperties hitboxplus$drawLookDirection(
+            Vec3 start,
+            Vec3 end,
             int color,
-            Operation<VisibilityConfigurable> original,
+            Operation<GizmoProperties> original,
             Entity entity,
             float tickProgress,
             boolean inLocalServer
@@ -113,15 +112,15 @@ public class EntityHitboxDebugRendererMixin {
         return original.call(start, end, color);
     }
 
-    private static void drawPatternedBox(Box box, ResolvedHitboxStyle style) {
-        Vec3d minMinMin = new Vec3d(box.minX, box.minY, box.minZ);
-        Vec3d minMinMax = new Vec3d(box.minX, box.minY, box.maxZ);
-        Vec3d minMaxMin = new Vec3d(box.minX, box.maxY, box.minZ);
-        Vec3d minMaxMax = new Vec3d(box.minX, box.maxY, box.maxZ);
-        Vec3d maxMinMin = new Vec3d(box.maxX, box.minY, box.minZ);
-        Vec3d maxMinMax = new Vec3d(box.maxX, box.minY, box.maxZ);
-        Vec3d maxMaxMin = new Vec3d(box.maxX, box.maxY, box.minZ);
-        Vec3d maxMaxMax = new Vec3d(box.maxX, box.maxY, box.maxZ);
+    private static void drawPatternedBox(AABB box, ResolvedHitboxStyle style) {
+        Vec3 minMinMin = new Vec3(box.minX, box.minY, box.minZ);
+        Vec3 minMinMax = new Vec3(box.minX, box.minY, box.maxZ);
+        Vec3 minMaxMin = new Vec3(box.minX, box.maxY, box.minZ);
+        Vec3 minMaxMax = new Vec3(box.minX, box.maxY, box.maxZ);
+        Vec3 maxMinMin = new Vec3(box.maxX, box.minY, box.minZ);
+        Vec3 maxMinMax = new Vec3(box.maxX, box.minY, box.maxZ);
+        Vec3 maxMaxMin = new Vec3(box.maxX, box.maxY, box.minZ);
+        Vec3 maxMaxMax = new Vec3(box.maxX, box.maxY, box.maxZ);
 
         drawPatternedEdge(minMinMin, maxMinMin, style);
         drawPatternedEdge(minMinMax, maxMinMax, style);
@@ -137,7 +136,7 @@ public class EntityHitboxDebugRendererMixin {
         drawPatternedEdge(maxMinMax, maxMaxMax, style);
     }
 
-    private static void drawPatternedEdge(Vec3d start, Vec3d end, ResolvedHitboxStyle style) {
+    private static void drawPatternedEdge(Vec3 start, Vec3 end, ResolvedHitboxStyle style) {
         double length = start.distanceTo(end);
         if (length <= 0.0D) {
             return;
@@ -150,7 +149,7 @@ public class EntityHitboxDebugRendererMixin {
             if (segmentEnd <= distance) {
                 continue;
             }
-            GizmoDrawing.line(
+            Gizmos.line(
                     start.lerp(end, distance / length),
                     start.lerp(end, segmentEnd / length),
                     style.opaqueArgb(),
@@ -160,15 +159,14 @@ public class EntityHitboxDebugRendererMixin {
     }
 
     private static ResolvedHitboxStyle resolveStyle(RuntimeHitboxLookup lookup, Entity entity) {
-        if (entity instanceof ClientPlayerEntity || entity == MinecraftClient.getInstance().player) {
+        if (entity instanceof LocalPlayer || entity == Minecraft.getInstance().player) {
             return lookup.selfPlayerStyle();
         }
 
-        if (entity instanceof PlayerEntity) {
-            return lookup.forPlayer((PlayerEntity) entity);
+        if (entity instanceof Player) {
+            return lookup.forPlayer((Player) entity);
         }
 
         return lookup.forEntityType(entity.getType());
     }
 }
-//?}
