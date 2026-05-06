@@ -6,7 +6,8 @@
   "description": "${description}",
   "authors": [
     {
-      "name": "PingIsFun"
+      "name": "PingIsFun",
+      "email": "pingisfun@mgail.com"
     }
   ],
   "contact": {
