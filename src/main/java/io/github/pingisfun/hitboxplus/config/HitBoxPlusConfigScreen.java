@@ -8,6 +8,8 @@ import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.OptionGroup;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.FloatSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.minecraft.client.MinecraftClient;
@@ -65,16 +67,7 @@ public final class HitBoxPlusConfigScreen {
                                 .binding(defaults.isEnabled(), config::isEnabled, config::setEnabled)
                                 .controller(TickBoxControllerBuilder::create)
                                 .build())
-                        .option(Option.<java.awt.Color>createBuilder()
-                                .name(Text.literal("Default hitbox color"))
-                                .description(description("Used when no player, group, or entity-specific rule applies."))
-                                .binding(
-                                        defaults.defaultHitbox.toAwtColor(),
-                                        () -> config.defaultHitbox.toAwtColor(),
-                                        config.defaultHitbox::setAwtColor
-                                )
-                                .controller(option -> ColorControllerBuilder.create(option).allowAlpha(false))
-                                .build())
+                        .options(styleOptions("", defaults.defaultHitbox, config.defaultHitbox))
                         .build())
                 .build();
     }
@@ -106,11 +99,19 @@ public final class HitBoxPlusConfigScreen {
     private static List<OptionGroup> createPlayerGroups(HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return List.of(
                 OptionGroup.createBuilder()
-                        .name(Text.literal("Player colors"))
-                        .description(description("Player colors override entity and group colors."))
-                        .option(colorOption("Self color", defaults.selfPlayer, config.selfPlayer))
-                        .option(colorOption("Friend color", defaults.friendPlayer, config.friendPlayer))
-                        .option(colorOption("Enemy color", defaults.enemyPlayer, config.enemyPlayer))
+                        .name(Text.literal("Self"))
+                        .description(description("Self player settings override all other hitbox settings."))
+                        .options(styleOptions("", defaults.selfPlayer, config.selfPlayer))
+                        .build(),
+                OptionGroup.createBuilder()
+                        .name(Text.literal("Friends"))
+                        .description(description("Friend player settings override entity and group settings."))
+                        .options(styleOptions("", defaults.friendPlayer, config.friendPlayer))
+                        .build(),
+                OptionGroup.createBuilder()
+                        .name(Text.literal("Enemies"))
+                        .description(description("Enemy player settings override entity and group settings."))
+                        .options(styleOptions("", defaults.enemyPlayer, config.enemyPlayer))
                         .build(),
                 playerList("Friends", defaults.friends, () -> config.friends, value -> config.friends = new ArrayList<>(value)),
                 playerList("Enemies", defaults.enemies, () -> config.enemies, value -> config.enemies = new ArrayList<>(value))
@@ -131,7 +132,7 @@ public final class HitBoxPlusConfigScreen {
                             .binding(defaultConfig.enabled, () -> groupConfig.enabled, value -> groupConfig.enabled = value)
                             .controller(TickBoxControllerBuilder::create)
                             .build())
-                    .option(colorOption("Color", defaultConfig.color, groupConfig.color))
+                    .options(styleOptions("", defaultConfig.color, groupConfig.color))
                     .build());
         }
         return groups;
@@ -168,16 +169,8 @@ public final class HitBoxPlusConfigScreen {
         }
 
         for (String id : activeIds) {
-            builder.option(Option.<java.awt.Color>createBuilder()
-                    .name(Text.literal(entityDisplayName(id)))
-                    .description(description(id))
-                    .binding(
-                            defaults.defaultHitbox.toAwtColor(),
-                            () -> config.getEntityOverrideColor(id),
-                            color -> config.setEntityOverride(id, color)
-                    )
-                    .controller(option -> ColorControllerBuilder.create(option).allowAlpha(false))
-                    .build());
+            EntityHitboxConfig override = config.entityOverride(id);
+            builder.options(styleOptions(entityDisplayName(id) + " ", defaults.defaultHitbox, override.color));
             builder.option(ButtonOption.createBuilder()
                     .name(Text.literal("Remove " + entityDisplayName(id)))
                     .text(Text.literal("Remove"))
@@ -236,6 +229,40 @@ public final class HitBoxPlusConfigScreen {
                 .filter(id -> !activeIds.contains(id))
                 .sorted(Comparator.comparing(HitBoxPlusConfigScreen::entityDisplayName))
                 .toList();
+    }
+
+    private static List<Option<?>> styleOptions(String prefix, HitboxColorConfig defaults, HitboxColorConfig config) {
+        return List.of(
+                colorOption(prefix + "Color", defaults, config),
+                Option.<Boolean>createBuilder()
+                        .name(Text.literal(prefix + "Show hitbox"))
+                        .binding(defaults.showHitbox, () -> config.showHitbox, value -> config.showHitbox = value)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build(),
+                Option.<Float>createBuilder()
+                        .name(Text.literal(prefix + "Thickness"))
+                        .binding(defaults.hitboxThickness, () -> config.hitboxThickness, value -> config.hitboxThickness = value)
+                        .controller(option -> FloatSliderControllerBuilder.create(option)
+                                .range(HitboxColorConfig.MIN_HITBOX_THICKNESS, HitboxColorConfig.MAX_HITBOX_THICKNESS)
+                                .step(0.5F)
+                                .formatValue(value -> Text.literal(String.format(java.util.Locale.ROOT, "%.1f", value))))
+                        .build(),
+                Option.<HitboxPattern>createBuilder()
+                        .name(Text.literal(prefix + "Pattern"))
+                        .binding(defaults.hitboxPattern, () -> config.hitboxPattern, value -> config.hitboxPattern = value)
+                        .controller(option -> EnumControllerBuilder.create(option).enumClass(HitboxPattern.class))
+                        .build(),
+                Option.<Boolean>createBuilder()
+                        .name(Text.literal(prefix + "Eye line"))
+                        .binding(defaults.showEyeLine, () -> config.showEyeLine, value -> config.showEyeLine = value)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build(),
+                Option.<Boolean>createBuilder()
+                        .name(Text.literal(prefix + "Look direction"))
+                        .binding(defaults.showLookDirection, () -> config.showLookDirection, value -> config.showLookDirection = value)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build()
+        );
     }
 
     private static Option<java.awt.Color> colorOption(String name, HitboxColorConfig defaults, HitboxColorConfig config) {

@@ -1,6 +1,12 @@
 package io.github.pingisfun.hitboxplus.data;
 
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfig;
+import io.github.pingisfun.hitboxplus.config.EntityGroup;
+import io.github.pingisfun.hitboxplus.config.EntityHitboxConfig;
+import io.github.pingisfun.hitboxplus.config.GroupHitboxConfig;
+import io.github.pingisfun.hitboxplus.config.HitboxColorConfig;
+import io.github.pingisfun.hitboxplus.config.HitboxPattern;
+import io.github.pingisfun.hitboxplus.runtime.ResolvedHitboxStyle;
 import io.github.pingisfun.hitboxplus.runtime.RuntimeHitboxLookup;
 import net.minecraft.Bootstrap;
 import net.minecraft.SharedConstants;
@@ -38,5 +44,58 @@ class EntityGroupDataTest {
         RuntimeHitboxLookup lookup = RuntimeHitboxLookup.compile(config);
 
         Registries.ENTITY_TYPE.forEach(entityType -> assertNotNull(lookup.forEntityType(entityType)));
+    }
+
+    @Test
+    void compiledLookupIncludesDisplayFields() {
+        HitBoxPlusConfig config = new HitBoxPlusConfig();
+        config.defaultHitbox.showHitbox = false;
+        config.defaultHitbox.hitboxThickness = 4.5F;
+        config.defaultHitbox.hitboxPattern = HitboxPattern.DOTTED;
+        config.defaultHitbox.showEyeLine = false;
+        config.defaultHitbox.showLookDirection = false;
+        config.selfPlayer.hitboxPattern = HitboxPattern.DOTTED;
+        config.selfPlayer.hitboxThickness = 6.0F;
+        config.friendPlayer.showLookDirection = false;
+        config.enemyPlayer.showEyeLine = false;
+        config.normalize();
+
+        RuntimeHitboxLookup lookup = RuntimeHitboxLookup.compile(config);
+        ResolvedHitboxStyle style = lookup.forEntityType(EntityType.ARMOR_STAND);
+
+        assertEquals(false, style.showHitbox());
+        assertEquals(4.5F, style.hitboxThickness());
+        assertEquals(HitboxPattern.DOTTED, style.hitboxPattern());
+        assertEquals(false, style.showEyeLine());
+        assertEquals(false, style.showLookDirection());
+        assertEquals(HitboxPattern.DOTTED, lookup.selfPlayerStyle().hitboxPattern());
+        assertEquals(6.0F, lookup.selfPlayerStyle().hitboxThickness());
+        assertEquals(false, lookup.friendPlayerStyle().showLookDirection());
+        assertEquals(false, lookup.enemyPlayerStyle().showEyeLine());
+    }
+
+    @Test
+    void entityOverrideDisplaySettingsOverrideGroupAndDefaultSettings() {
+        HitBoxPlusConfig config = new HitBoxPlusConfig();
+        config.defaultHitbox.hitboxPattern = HitboxPattern.FULL;
+        config.groupHitboxes.put(EntityGroup.HOSTILE, new GroupHitboxConfig(true, style(HitboxPattern.FULL, 3.0F)));
+        config.entityOverrides.put("minecraft:zombie", new EntityHitboxConfig(true, style(HitboxPattern.DOTTED, 7.0F)));
+        config.normalize();
+
+        RuntimeHitboxLookup lookup = RuntimeHitboxLookup.compile(config);
+        ResolvedHitboxStyle skeletonStyle = lookup.forEntityType(EntityType.SKELETON);
+        ResolvedHitboxStyle zombieStyle = lookup.forEntityType(EntityType.ZOMBIE);
+
+        assertEquals(HitboxPattern.FULL, skeletonStyle.hitboxPattern());
+        assertEquals(3.0F, skeletonStyle.hitboxThickness());
+        assertEquals(HitboxPattern.DOTTED, zombieStyle.hitboxPattern());
+        assertEquals(7.0F, zombieStyle.hitboxThickness());
+    }
+
+    private static HitboxColorConfig style(HitboxPattern pattern, float thickness) {
+        HitboxColorConfig style = new HitboxColorConfig();
+        style.hitboxPattern = pattern;
+        style.hitboxThickness = thickness;
+        return style;
     }
 }

@@ -1,13 +1,28 @@
 package io.github.pingisfun.hitboxplus.runtime;
 
 import io.github.pingisfun.hitboxplus.config.HitboxColorConfig;
+import io.github.pingisfun.hitboxplus.config.HitboxPattern;
 
-public record ResolvedHitboxStyle(float red, float green, float blue) {
+public record ResolvedHitboxStyle(
+        float red,
+        float green,
+        float blue,
+        boolean showHitbox,
+        float hitboxThickness,
+        HitboxPattern hitboxPattern,
+        boolean showEyeLine,
+        boolean showLookDirection
+) {
     public static ResolvedHitboxStyle fromConfig(HitboxColorConfig color) {
         return new ResolvedHitboxStyle(
                 color.red / 255.0F,
                 color.green / 255.0F,
-                color.blue / 255.0F
+                color.blue / 255.0F,
+                color.showHitbox,
+                color.hitboxThickness,
+                color.hitboxPattern,
+                color.showEyeLine,
+                color.showLookDirection
         );
     }
 
