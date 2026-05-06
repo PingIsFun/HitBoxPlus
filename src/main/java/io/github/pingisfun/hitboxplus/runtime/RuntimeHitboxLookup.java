@@ -5,7 +5,9 @@ import io.github.pingisfun.hitboxplus.config.GroupHitboxConfig;
 import io.github.pingisfun.hitboxplus.config.PlayerRelation;
 import io.github.pingisfun.hitboxplus.data.EntityGroupData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.Identifier;
 
 import java.util.Collections;
@@ -18,27 +20,33 @@ public final class RuntimeHitboxLookup {
     private final boolean enabled;
     private final ResolvedHitboxStyle defaultStyle;
     private final ResolvedHitboxStyle selfPlayerStyle;
+    private final ResolvedHitboxStyle neutralPlayerStyle;
     private final ResolvedHitboxStyle friendPlayerStyle;
     private final ResolvedHitboxStyle enemyPlayerStyle;
     private final Map<EntityType<?>, ResolvedHitboxStyle> entityStyles;
     private final Map<String, PlayerRelation> playerRelations;
+    private final boolean usePlayerTeamColors;
 
     private RuntimeHitboxLookup(
             boolean enabled,
             ResolvedHitboxStyle defaultStyle,
             ResolvedHitboxStyle selfPlayerStyle,
+            ResolvedHitboxStyle neutralPlayerStyle,
             ResolvedHitboxStyle friendPlayerStyle,
             ResolvedHitboxStyle enemyPlayerStyle,
             Map<EntityType<?>, ResolvedHitboxStyle> entityStyles,
-            Map<String, PlayerRelation> playerRelations
+            Map<String, PlayerRelation> playerRelations,
+            boolean usePlayerTeamColors
     ) {
         this.enabled = enabled;
         this.defaultStyle = defaultStyle;
         this.selfPlayerStyle = selfPlayerStyle;
+        this.neutralPlayerStyle = neutralPlayerStyle;
         this.friendPlayerStyle = friendPlayerStyle;
         this.enemyPlayerStyle = enemyPlayerStyle;
         this.entityStyles = entityStyles;
         this.playerRelations = playerRelations;
+        this.usePlayerTeamColors = usePlayerTeamColors;
     }
 
     public static RuntimeHitboxLookup compile(HitBoxPlusConfig config) {
@@ -67,10 +75,12 @@ public final class RuntimeHitboxLookup {
                 config.isEnabled(),
                 defaultStyle,
                 ResolvedHitboxStyle.fromConfig(config.selfPlayer),
+                ResolvedHitboxStyle.fromConfig(config.neutralPlayer),
                 ResolvedHitboxStyle.fromConfig(config.friendPlayer),
                 ResolvedHitboxStyle.fromConfig(config.enemyPlayer),
                 Collections.unmodifiableMap(entityStyles),
-                Collections.unmodifiableMap(playerRelations)
+                Collections.unmodifiableMap(playerRelations),
+                config.usePlayerTeamColors
         );
     }
 
@@ -90,11 +100,32 @@ public final class RuntimeHitboxLookup {
         if (relation == PlayerRelation.ENEMY) {
             return enemyPlayerStyle;
         }
-        return defaultStyle;
+        return neutralPlayerStyle;
+    }
+
+    public ResolvedHitboxStyle forPlayer(PlayerEntity player) {
+        PlayerRelation relation = playerRelations.get(normalizePlayerName(player.getName().getString()));
+        if (relation == PlayerRelation.FRIEND) {
+            return friendPlayerStyle;
+        }
+        if (relation == PlayerRelation.ENEMY) {
+            return enemyPlayerStyle;
+        }
+
+        Integer teamColor = usePlayerTeamColors ? teamColor(player) : null;
+        if (teamColor != null) {
+            return neutralPlayerStyle.withRgb(teamColor);
+        }
+
+        return neutralPlayerStyle;
     }
 
     public ResolvedHitboxStyle selfPlayerStyle() {
         return selfPlayerStyle;
+    }
+
+    public ResolvedHitboxStyle neutralPlayerStyle() {
+        return neutralPlayerStyle;
     }
 
     public ResolvedHitboxStyle friendPlayerStyle() {
@@ -107,5 +138,13 @@ public final class RuntimeHitboxLookup {
 
     private static String normalizePlayerName(String playerName) {
         return playerName.strip().toLowerCase(Locale.ROOT);
+    }
+
+    private static Integer teamColor(PlayerEntity player) {
+        Team team = player.getScoreboardTeam();
+        if (team == null) {
+            return null;
+        }
+        return team.getColor().getColorValue();
     }
 }

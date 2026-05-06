@@ -56,6 +56,8 @@ class EntityGroupDataTest {
         config.defaultHitbox.showLookDirection = false;
         config.selfPlayer.hitboxPattern = HitboxPattern.DOTTED;
         config.selfPlayer.hitboxThickness = 6.0F;
+        config.neutralPlayer.hitboxThickness = 5.0F;
+        config.neutralPlayer.showHitbox = false;
         config.friendPlayer.showLookDirection = false;
         config.enemyPlayer.showEyeLine = false;
         config.normalize();
@@ -70,8 +72,26 @@ class EntityGroupDataTest {
         assertEquals(false, style.showLookDirection());
         assertEquals(HitboxPattern.DOTTED, lookup.selfPlayerStyle().hitboxPattern());
         assertEquals(6.0F, lookup.selfPlayerStyle().hitboxThickness());
+        assertEquals(5.0F, lookup.neutralPlayerStyle().hitboxThickness());
+        assertEquals(false, lookup.neutralPlayerStyle().showHitbox());
         assertEquals(false, lookup.friendPlayerStyle().showLookDirection());
         assertEquals(false, lookup.enemyPlayerStyle().showEyeLine());
+    }
+
+    @Test
+    void teamColorReplacementKeepsNeutralPlayerDisplaySettings() {
+        HitBoxPlusConfig config = new HitBoxPlusConfig();
+        config.neutralPlayer.hitboxThickness = 4.0F;
+        config.neutralPlayer.hitboxPattern = HitboxPattern.DOTTED;
+        config.neutralPlayer.showEyeLine = false;
+        config.normalize();
+
+        ResolvedHitboxStyle style = RuntimeHitboxLookup.compile(config).neutralPlayerStyle().withRgb(0x123456);
+
+        assertEquals(0xFF123456, style.opaqueArgb());
+        assertEquals(4.0F, style.hitboxThickness());
+        assertEquals(HitboxPattern.DOTTED, style.hitboxPattern());
+        assertEquals(false, style.showEyeLine());
     }
 
     @Test

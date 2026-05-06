@@ -16,8 +16,10 @@ public final class HitBoxPlusConfig {
     private boolean enabled = true;
     public HitboxColorConfig defaultHitbox = new HitboxColorConfig(255, 255, 255);
     public HitboxColorConfig selfPlayer = new HitboxColorConfig(255, 255, 255);
+    public HitboxColorConfig neutralPlayer = new HitboxColorConfig(255, 255, 255);
     public HitboxColorConfig friendPlayer = new HitboxColorConfig(10, 64, 12);
     public HitboxColorConfig enemyPlayer = new HitboxColorConfig(255, 63, 51);
+    public boolean usePlayerTeamColors = false;
     public Map<EntityGroup, GroupHitboxConfig> groupHitboxes = createDefaultGroupHitboxes();
     public Map<String, EntityHitboxConfig> entityOverrides = new HashMap<>();
     public List<String> friends = new ArrayList<>();
@@ -35,6 +37,7 @@ public final class HitBoxPlusConfig {
         configVersion = 1;
         defaultHitbox = normalizeColor(defaultHitbox, new HitboxColorConfig(255, 255, 255));
         selfPlayer = normalizeColor(selfPlayer, new HitboxColorConfig(255, 255, 255));
+        neutralPlayer = normalizeColor(neutralPlayer, new HitboxColorConfig(255, 255, 255));
         friendPlayer = normalizeColor(friendPlayer, new HitboxColorConfig(10, 64, 12));
         enemyPlayer = normalizeColor(enemyPlayer, new HitboxColorConfig(255, 63, 51));
         groupHitboxes = normalizeGroupHitboxes(groupHitboxes);
@@ -79,6 +82,44 @@ public final class HitBoxPlusConfig {
     public boolean isEntityOverrideEnabled(String entityId) {
         EntityHitboxConfig override = entityOverrides.get(entityId);
         return override != null && override.enabled;
+    }
+
+    public PlayerRelation playerRelation(String playerName) {
+        if (containsPlayerName(friends, playerName)) {
+            return PlayerRelation.FRIEND;
+        }
+        if (containsPlayerName(enemies, playerName)) {
+            return PlayerRelation.ENEMY;
+        }
+        return null;
+    }
+
+    public void setPlayerRelation(String playerName, PlayerRelation relation) {
+        String normalizedName = playerName.strip();
+        if (normalizedName.isEmpty()) {
+            return;
+        }
+
+        removePlayerName(friends, normalizedName);
+        removePlayerName(enemies, normalizedName);
+        if (relation == PlayerRelation.FRIEND) {
+            friends.add(normalizedName);
+        } else if (relation == PlayerRelation.ENEMY) {
+            enemies.add(normalizedName);
+        }
+    }
+
+    public void removePlayerRelation(String playerName, PlayerRelation relation) {
+        String normalizedName = playerName.strip();
+        if (normalizedName.isEmpty()) {
+            return;
+        }
+
+        if (relation == PlayerRelation.FRIEND) {
+            removePlayerName(friends, normalizedName);
+        } else if (relation == PlayerRelation.ENEMY) {
+            removePlayerName(enemies, normalizedName);
+        }
     }
 
     public void setEntityOverrideEnabled(String entityId, boolean enabled) {
@@ -148,5 +189,13 @@ public final class HitBoxPlusConfig {
                 .filter(name -> !name.isEmpty())
                 .distinct()
                 .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+    }
+
+    private static boolean containsPlayerName(List<String> names, String playerName) {
+        return names.stream().anyMatch(name -> name.equalsIgnoreCase(playerName));
+    }
+
+    private static void removePlayerName(List<String> names, String playerName) {
+        names.removeIf(name -> name.equalsIgnoreCase(playerName));
     }
 }

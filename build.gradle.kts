@@ -17,6 +17,7 @@ repositories {
     strictMaven("https://maven.terraformersmc.com/", "Terraformers", "com.terraformersmc")
     strictMaven("https://maven.quiltmc.org/repository/release", "Quilt", "org.quiltmc.parsers")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
+    strictMaven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1", "DevAuth", "me.djtheredstoner")
 }
 
 dependencies {
@@ -27,6 +28,7 @@ dependencies {
 
     modImplementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}")
     modImplementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
+    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
 
     testImplementation("net.fabricmc:fabric-loader-junit:${property("deps.fabric_loader")}")
 }

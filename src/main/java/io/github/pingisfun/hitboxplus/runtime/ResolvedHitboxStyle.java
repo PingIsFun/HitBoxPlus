@@ -32,4 +32,17 @@ public record ResolvedHitboxStyle(
         int blueInt = Math.round(blue * 255.0F);
         return 0xFF000000 | redInt << 16 | greenInt << 8 | blueInt;
     }
+
+    public ResolvedHitboxStyle withRgb(int rgb) {
+        return new ResolvedHitboxStyle(
+                (rgb >> 16 & 0xFF) / 255.0F,
+                (rgb >> 8 & 0xFF) / 255.0F,
+                (rgb & 0xFF) / 255.0F,
+                showHitbox,
+                hitboxThickness,
+                hitboxPattern,
+                showEyeLine,
+                showLookDirection
+        );
+    }
 }

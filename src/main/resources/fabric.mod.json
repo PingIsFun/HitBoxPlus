@@ -14,6 +14,7 @@
     "sources": "https://github.com/PingIsFun/HitBoxPlus",
     "issues": "https://github.com/PingIsFun/HitBoxPlus/issues"
   },
+  "icon": "assets/icon.png",
   "license": "MIT",
   "environment": "client",
   "entrypoints": {

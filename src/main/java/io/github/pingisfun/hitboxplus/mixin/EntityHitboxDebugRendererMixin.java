@@ -164,7 +164,7 @@ public class EntityHitboxDebugRendererMixin {
         }
 
         if (entity instanceof PlayerEntity) {
-            return lookup.forPlayerName(entity.getName().getString());
+            return lookup.forPlayer((PlayerEntity) entity);
         }
 
         return lookup.forEntityType(entity.getType());

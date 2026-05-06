@@ -2,6 +2,7 @@ package io.github.pingisfun.hitboxplus;
 
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfigManager;
 import io.github.pingisfun.hitboxplus.config.HitBoxPlusConfigScreen;
+import io.github.pingisfun.hitboxplus.integration.HitBoxPlusClientCommands;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.gui.screen.Screen;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ public class HitBoxPlus implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         HitBoxPlusConfigManager.load();
+        HitBoxPlusClientCommands.register();
         LOGGER.info("Initializing HitBoxPlus {} for Minecraft {}", VERSION, MINECRAFT);
     }
 

@@ -2,21 +2,28 @@ package io.github.pingisfun.hitboxplus.config;
 
 import dev.isxander.yacl3.api.ButtonOption;
 import dev.isxander.yacl3.api.ConfigCategory;
+import dev.isxander.yacl3.api.Controller;
 import dev.isxander.yacl3.api.ListOption;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.OptionGroup;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.yacl3.api.utils.Dimension;
+import dev.isxander.yacl3.gui.AbstractWidget;
+import dev.isxander.yacl3.gui.YACLScreen;
+import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.FloatSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -39,14 +46,14 @@ public final class HitBoxPlusConfigScreen {
                 .save(HitBoxPlusConfigManager::save);
 
         List<ConfigCategory> categories = List.of(
-                generalCategory(config, defaults),
-                playersCategory(config, defaults),
-                groupsCategory(config, defaults),
+                generalCategory(parent, config, defaults),
+                playersCategory(parent, config, defaults),
+                groupsCategory(parent, config, defaults),
                 entitiesCategory(parent, config, defaults)
         );
 
-        if (initialCategory == InitialCategory.ENTITIES) {
-            builder.screenInit(screen -> screen.tabNavigationBar.selectTab(3, false));
+        if (initialCategory != InitialCategory.GENERAL) {
+            builder.screenInit(screen -> screen.tabNavigationBar.selectTab(initialCategory.index, false));
         }
         categories.forEach(builder::category);
 
@@ -55,7 +62,7 @@ public final class HitBoxPlusConfigScreen {
         return yacl.generateScreen(parent);
     }
 
-    private static ConfigCategory generalCategory(HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
+    private static ConfigCategory generalCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
                 .name(Text.literal("General"))
                 .tooltip(Text.literal("Global behavior and fallback color."))
@@ -67,24 +74,26 @@ public final class HitBoxPlusConfigScreen {
                                 .binding(defaults.isEnabled(), config::isEnabled, config::setEnabled)
                                 .controller(TickBoxControllerBuilder::create)
                                 .build())
-                        .options(styleOptions("", defaults.defaultHitbox, config.defaultHitbox))
+                        .option(styleRow(parent, "Default hitbox", defaults.defaultHitbox, config.defaultHitbox, InitialCategory.GENERAL))
                         .build())
                 .build();
     }
 
-    private static ConfigCategory playersCategory(HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
+    private static ConfigCategory playersCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
                 .name(Text.literal("Players"))
                 .tooltip(Text.literal("Self, friend, and enemy player colors."))
-                .groups(createPlayerGroups(config, defaults))
+                .options(createPlayerOptions(parent, config, defaults))
+                .group(playerList("Friends", defaults.friends, () -> config.friends, value -> config.friends = new ArrayList<>(value)))
+                .group(playerList("Enemies", defaults.enemies, () -> config.enemies, value -> config.enemies = new ArrayList<>(value)))
                 .build();
     }
 
-    private static ConfigCategory groupsCategory(HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
+    private static ConfigCategory groupsCategory(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return ConfigCategory.createBuilder()
                 .name(Text.literal("Groups"))
                 .tooltip(Text.literal("Broad defaults for passive mobs, hostile mobs, bosses, and other groups."))
-                .groups(createGroupOptions(config, defaults))
+                .groups(createGroupOptions(parent, config, defaults))
                 .build();
     }
 
@@ -96,46 +105,44 @@ public final class HitBoxPlusConfigScreen {
                 .build();
     }
 
-    private static List<OptionGroup> createPlayerGroups(HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
+    private static List<Option<?>> createPlayerOptions(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
         return List.of(
-                OptionGroup.createBuilder()
-                        .name(Text.literal("Self"))
-                        .description(description("Self player settings override all other hitbox settings."))
-                        .options(styleOptions("", defaults.selfPlayer, config.selfPlayer))
+                Option.<Boolean>createBuilder()
+                        .name(Text.literal("Use team colors"))
+                        .description(description("Warning: friend/enemy player styles override team colors. Team colors override neutral player hitboxes."))
+                        .binding(defaults.usePlayerTeamColors, () -> config.usePlayerTeamColors, value -> config.usePlayerTeamColors = value)
+                        .controller(TickBoxControllerBuilder::create)
                         .build(),
-                OptionGroup.createBuilder()
-                        .name(Text.literal("Friends"))
-                        .description(description("Friend player settings override entity and group settings."))
-                        .options(styleOptions("", defaults.friendPlayer, config.friendPlayer))
-                        .build(),
-                OptionGroup.createBuilder()
-                        .name(Text.literal("Enemies"))
-                        .description(description("Enemy player settings override entity and group settings."))
-                        .options(styleOptions("", defaults.enemyPlayer, config.enemyPlayer))
-                        .build(),
-                playerList("Friends", defaults.friends, () -> config.friends, value -> config.friends = new ArrayList<>(value)),
-                playerList("Enemies", defaults.enemies, () -> config.enemies, value -> config.enemies = new ArrayList<>(value))
+                styleRow(parent, "Self", defaults.selfPlayer, config.selfPlayer, InitialCategory.PLAYERS),
+                styleRow(parent, "Neutral", defaults.neutralPlayer, config.neutralPlayer, InitialCategory.PLAYERS),
+                styleRow(parent, "Friends", defaults.friendPlayer, config.friendPlayer, InitialCategory.PLAYERS),
+                styleRow(parent, "Enemies", defaults.enemyPlayer, config.enemyPlayer, InitialCategory.PLAYERS)
         );
     }
 
-    private static List<OptionGroup> createGroupOptions(HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
-        List<OptionGroup> groups = new ArrayList<>();
+    private static List<OptionGroup> createGroupOptions(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
+        OptionGroup.Builder builder = OptionGroup.createBuilder()
+                .name(Text.literal("Groups"))
+                .description(description("Each group can be enabled or disabled, and its style can be edited."))
+                .collapsed(false);
         for (EntityGroup group : EntityGroup.values()) {
             GroupHitboxConfig groupConfig = config.groupHitboxes.get(group);
             GroupHitboxConfig defaultConfig = defaults.groupHitboxes.get(group);
-            groups.add(OptionGroup.createBuilder()
-                    .name(Text.literal(group.displayName()))
-                    .collapsed(group != EntityGroup.PASSIVE && group != EntityGroup.HOSTILE && group != EntityGroup.BOSS)
-                    .option(Option.<Boolean>createBuilder()
-                            .name(Text.literal("Enabled"))
-                            .description(description("When disabled, this group uses the global default unless an entity override exists."))
-                            .binding(defaultConfig.enabled, () -> groupConfig.enabled, value -> groupConfig.enabled = value)
-                            .controller(TickBoxControllerBuilder::create)
-                            .build())
-                    .options(styleOptions("", defaultConfig.color, groupConfig.color))
-                    .build());
+            builder.option(twoActionRow(
+                    group.displayName(),
+                    "Edit",
+                    () -> MinecraftClient.getInstance().setScreen(styleScreen(
+                            create(parent, HitBoxPlusConfigManager.config(), InitialCategory.GROUPS),
+                            group.displayName(),
+                            defaultConfig.color,
+                            groupConfig.color
+                    )),
+                    () -> groupConfig.enabled ? "Enabled" : "Disabled",
+                    () -> groupConfig.enabled ? Formatting.GREEN : Formatting.RED,
+                    () -> groupConfig.enabled = !groupConfig.enabled
+            ));
         }
-        return groups;
+        return List.of(builder.build());
     }
 
     private static List<OptionGroup> createEntityOptions(Screen parent, HitBoxPlusConfig config, HitBoxPlusConfig defaults) {
@@ -170,15 +177,17 @@ public final class HitBoxPlusConfigScreen {
 
         for (String id : activeIds) {
             EntityHitboxConfig override = config.entityOverride(id);
-            builder.options(styleOptions(entityDisplayName(id) + " ", defaults.defaultHitbox, override.color));
-            builder.option(ButtonOption.createBuilder()
-                    .name(Text.literal("Remove " + entityDisplayName(id)))
-                    .text(Text.literal("Remove"))
-                    .action((screen, option) -> {
-                        config.removeEntityOverride(id);
+            String displayName = entityDisplayName(id);
+            builder.option(entityOverrideRow(
+                    parent,
+                    displayName,
+                    defaults.defaultHitbox,
+                    override.color,
+                    () -> {
+                        config.setEntityOverrideEnabled(id, false);
                         refresh(parent);
-                    })
-                    .build());
+                    }
+            ));
         }
 
         return builder.build();
@@ -229,6 +238,93 @@ public final class HitBoxPlusConfigScreen {
                 .filter(id -> !activeIds.contains(id))
                 .sorted(Comparator.comparing(HitBoxPlusConfigScreen::entityDisplayName))
                 .toList();
+    }
+
+    private static ButtonOption styleRow(
+            Screen parent,
+            String name,
+            HitboxColorConfig defaults,
+            HitboxColorConfig config,
+            InitialCategory returnCategory
+    ) {
+        return styleRow(parent, name, defaults, config, returnCategory, name);
+    }
+
+    private static ButtonOption styleRow(
+            Screen parent,
+            String rowName,
+            HitboxColorConfig defaults,
+            HitboxColorConfig config,
+            InitialCategory returnCategory,
+            String screenName
+    ) {
+        return ButtonOption.createBuilder()
+                .name(Text.literal(rowName))
+                .text(Text.literal("Edit"))
+                .action((screen, option) -> MinecraftClient.getInstance().setScreen(
+                        styleScreen(
+                                create(parent, HitBoxPlusConfigManager.config(), returnCategory),
+                                screenName,
+                                defaults,
+                                config
+                        )
+                ))
+                .build();
+    }
+
+    private static Screen styleScreen(Screen parent, String name, HitboxColorConfig defaults, HitboxColorConfig config) {
+        YetAnotherConfigLib yacl = YetAnotherConfigLib.createBuilder()
+                .title(Text.literal("HitBox+ - " + name))
+                .save(HitBoxPlusConfigManager::save)
+                .category(ConfigCategory.createBuilder()
+                        .name(Text.literal("Style"))
+                        .group(OptionGroup.createBuilder()
+                                .name(Text.literal(name))
+                                .options(styleOptions("", defaults, config))
+                                .build())
+                        .build())
+                .build();
+
+        return yacl.generateScreen(parent);
+    }
+
+    private static Option<TwoActionRow> entityOverrideRow(
+            Screen parent,
+            String displayName,
+            HitboxColorConfig defaults,
+            HitboxColorConfig config,
+            Runnable disableAction
+    ) {
+        return twoActionRow(
+                displayName,
+                "Edit",
+                () -> MinecraftClient.getInstance().setScreen(styleScreen(
+                        create(parent, HitBoxPlusConfigManager.config(), InitialCategory.ENTITIES),
+                        displayName,
+                        defaults,
+                        config
+                )),
+                () -> "Remove",
+                () -> Formatting.RED,
+                disableAction
+        );
+    }
+
+    private static Option<TwoActionRow> twoActionRow(
+            String rowName,
+            String primaryText,
+            Runnable primaryAction,
+            java.util.function.Supplier<String> secondaryText,
+            java.util.function.Supplier<Formatting> secondaryColor,
+            Runnable secondaryAction
+    ) {
+        TwoActionRow actions = new TwoActionRow(primaryText, primaryAction, secondaryText, secondaryColor, secondaryAction);
+        return Option.<TwoActionRow>createBuilder()
+                .name(Text.literal(rowName))
+                .binding(actions, () -> actions, ignored -> {
+                })
+                .customController(TwoActionRowController::new)
+                .build();
     }
 
     private static List<Option<?>> styleOptions(String prefix, HitboxColorConfig defaults, HitboxColorConfig config) {
@@ -292,8 +388,16 @@ public final class HitBoxPlusConfigScreen {
     }
 
     private enum InitialCategory {
-        GENERAL,
-        ENTITIES
+        GENERAL(0),
+        PLAYERS(1),
+        GROUPS(2),
+        ENTITIES(3);
+
+        private final int index;
+
+        InitialCategory(int index) {
+            this.index = index;
+        }
     }
 
     private static ListOption<String> playerList(
@@ -309,5 +413,127 @@ public final class HitBoxPlusConfigScreen {
                 .initial("")
                 .insertEntriesAtEnd(true)
                 .build();
+    }
+
+    private record TwoActionRow(
+            String primaryText,
+            Runnable primaryAction,
+            java.util.function.Supplier<String> secondaryText,
+            java.util.function.Supplier<Formatting> secondaryColor,
+            Runnable secondaryAction
+    ) {
+    }
+
+    private static final class TwoActionRowController implements Controller<TwoActionRow> {
+        private final Option<TwoActionRow> option;
+
+        private TwoActionRowController(Option<TwoActionRow> option) {
+            this.option = option;
+        }
+
+        @Override
+        public Option<TwoActionRow> option() {
+            return option;
+        }
+
+        @Override
+        public Text formatValue() {
+            return Text.literal(option.pendingValue().primaryText());
+        }
+
+        @Override
+        public AbstractWidget provideWidget(YACLScreen screen, Dimension<Integer> widgetDimension) {
+            return new TwoActionRowWidget(this, screen, widgetDimension);
+        }
+    }
+
+    private static final class TwoActionRowWidget extends ControllerWidget<TwoActionRowController> {
+        private static final int BUTTON_WIDTH = 58;
+        private static final int BUTTON_GAP = 4;
+
+        private TwoActionRowWidget(TwoActionRowController control, YACLScreen screen, Dimension<Integer> dim) {
+            super(control, screen, dim);
+        }
+
+        @Override
+        protected void drawValueText(DrawContext context, int mouseX, int mouseY, float delta) {
+            TwoActionRow actions = control.option().pendingValue();
+            drawActionButton(context, primaryX(), Text.literal(actions.primaryText()), Formatting.WHITE, isPrimaryHovered(mouseX, mouseY));
+            drawActionButton(context, secondaryX(), Text.literal(actions.secondaryText().get()), actions.secondaryColor().get(), isSecondaryHovered(mouseX, mouseY));
+            if (hovered) {
+                context.setCursor(isAvailable() ? net.minecraft.client.gui.cursor.StandardCursors.POINTING_HAND : net.minecraft.client.gui.cursor.StandardCursors.NOT_ALLOWED);
+            }
+        }
+
+        private void drawActionButton(DrawContext context, int x, Text text, Formatting color, boolean hovered) {
+            int y = getDimension().y() + getYPadding();
+            int height = getDimension().height() - getYPadding() * 2;
+            drawButtonRect(context, x, y, x + BUTTON_WIDTH, y + height, hovered && isAvailable(), isAvailable());
+            context.drawCenteredTextWithShadow(textRenderer, text, x + BUTTON_WIDTH / 2, getTextY(), isAvailable() ? color.getColorValue() : inactiveColor);
+        }
+
+        @Override
+        public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+            if (!isAvailable()) {
+                return false;
+            }
+            if (isPrimaryHovered(mouseX, mouseY)) {
+                playDownSound();
+                control.option().pendingValue().primaryAction().run();
+                return true;
+            }
+            if (isSecondaryHovered(mouseX, mouseY)) {
+                playDownSound();
+                control.option().pendingValue().secondaryAction().run();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected int getHoveredControlWidth() {
+            return getUnhoveredControlWidth();
+        }
+
+        @Override
+        protected int getUnhoveredControlWidth() {
+            return BUTTON_WIDTH * 2 + BUTTON_GAP;
+        }
+
+        @Override
+        public boolean canReset() {
+            return false;
+        }
+
+        @Override
+        public boolean matchesSearch(String query) {
+            String lowerQuery = query.toLowerCase();
+            TwoActionRow actions = control.option().pendingValue();
+            return super.matchesSearch(query)
+                    || actions.primaryText().toLowerCase().contains(lowerQuery)
+                    || actions.secondaryText().get().toLowerCase().contains(lowerQuery);
+        }
+
+        private boolean isPrimaryHovered(double mouseX, double mouseY) {
+            return isButtonHovered(mouseX, mouseY, primaryX());
+        }
+
+        private boolean isSecondaryHovered(double mouseX, double mouseY) {
+            return isButtonHovered(mouseX, mouseY, secondaryX());
+        }
+
+        private boolean isButtonHovered(double mouseX, double mouseY, int x) {
+            int y = getDimension().y() + getYPadding();
+            int height = getDimension().height() - getYPadding() * 2;
+            return mouseX >= x && mouseX <= x + BUTTON_WIDTH && mouseY >= y && mouseY <= y + height;
+        }
+
+        private int primaryX() {
+            return getDimension().xLimit() - getXPadding() - BUTTON_WIDTH * 2 - BUTTON_GAP;
+        }
+
+        private int secondaryX() {
+            return getDimension().xLimit() - getXPadding() - BUTTON_WIDTH;
+        }
     }
 }
