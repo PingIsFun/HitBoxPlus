@@ -82,7 +82,7 @@ jobs:
         uses: cloudnode-pro/modrinth-publish@v2
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
-          project: ${{ vars.MODRINTH_PROJECT || 'hitboxplus' }}
+          project: 'hitboxplus'
           name: HitBox+ ${{ steps.metadata.outputs.version }}
           version: ${{ steps.metadata.outputs.version }}
           loaders: fabric
