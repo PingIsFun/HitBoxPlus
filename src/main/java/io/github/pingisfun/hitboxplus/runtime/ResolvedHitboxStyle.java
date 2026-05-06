@@ -1,0 +1,20 @@
+package io.github.pingisfun.hitboxplus.runtime;
+
+import io.github.pingisfun.hitboxplus.config.HitboxColorConfig;
+
+public record ResolvedHitboxStyle(float red, float green, float blue) {
+    public static ResolvedHitboxStyle fromConfig(HitboxColorConfig color) {
+        return new ResolvedHitboxStyle(
+                color.red / 255.0F,
+                color.green / 255.0F,
+                color.blue / 255.0F
+        );
+    }
+
+    public int opaqueArgb() {
+        int redInt = Math.round(red * 255.0F);
+        int greenInt = Math.round(green * 255.0F);
+        int blueInt = Math.round(blue * 255.0F);
+        return 0xFF000000 | redInt << 16 | greenInt << 8 | blueInt;
+    }
+}

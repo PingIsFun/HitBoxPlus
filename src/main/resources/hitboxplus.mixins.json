@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "io.github.pingisfun.hitboxplus.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "EntityHitboxDebugRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
