@@ -6,6 +6,24 @@
 
 HitBox+ is a client-side Fabric mod for customizing Minecraft entity hitbox colors.
 
+## Screenshots
+
+Player rules let you tune self, neutral, friend, and enemy hitboxes separately.
+
+![Player hitbox configuration](assets/players.png)
+
+Entity overrides let you enable custom styling for individual entity ids.
+
+![Entity hitbox overrides](assets/entities.png)
+
+Group defaults cover broad categories such as passive mobs, hostile mobs, bosses, projectiles, vehicles, and miscellaneous entities.
+
+![Group hitbox defaults](assets/groups.png)
+
+The style editor controls color, visibility, line thickness, pattern, eye line, and look direction for each rule.
+
+![Hitbox style editor](assets/hitbox_config.png)
+
 ## Features
 
 - Customize the default hitbox style used for entities without a more specific rule.
@@ -70,19 +88,7 @@ https://discord.gg/Jm2gPbvZZa
 
 ## Development
 
-This branch targets Minecraft `26.1` with Stonecutter prepared for future version nodes.
-
-Useful Gradle tasks:
-
-```sh
-./gradlew :26.1:build
-./gradlew :26.1:runClient
-./gradlew :26.1:buildAndCollect
-```
-
-Development requires Java 25.
-
-When adding another Minecraft version, add a new `versions/<minecraft>/gradle.properties` node and update the Stonecutter version matrix.
+Development notes are in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## License
 
