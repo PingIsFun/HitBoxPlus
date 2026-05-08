@@ -230,7 +230,7 @@ public final class HitBoxPlusConfigScreen {
                     Identifier identifier = Identifier.tryParse(id);
                     if (identifier != null && BuiltInRegistries.ENTITY_TYPE.containsKey(identifier)) {
                         config.enableEntityOverride(id);
-                        HitBoxPlusConfigManager.save();
+                        refresh(parent);
                     }
                 })
                 .controller(option -> StringControllerBuilder.create(option))
