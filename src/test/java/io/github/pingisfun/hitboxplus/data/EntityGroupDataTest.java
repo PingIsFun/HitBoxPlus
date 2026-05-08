@@ -126,6 +126,22 @@ class EntityGroupDataTest {
         assertEquals(4.0F, skeletonStyle.hitboxThickness());
     }
 
+    @Test
+    void invalidAndDisabledEntityOverridesAreIgnoredAtRuntime() {
+        HitBoxPlusConfig config = new HitBoxPlusConfig();
+        config.defaultHitbox = new HitboxColorConfig(1, 2, 3);
+        config.groupHitboxes.put(EntityGroup.HOSTILE, new GroupHitboxConfig(false, new HitboxColorConfig(140, 16, 7)));
+        config.entityOverrides.put("not valid", new EntityHitboxConfig(true, new HitboxColorConfig(12, 34, 56)));
+        config.entityOverrides.put("minecraft:missing_future_entity", new EntityHitboxConfig(true, new HitboxColorConfig(12, 34, 56)));
+        config.entityOverrides.put("minecraft:zombie", new EntityHitboxConfig(false, new HitboxColorConfig(200, 100, 50)));
+        config.entityOverrides.put("minecraft:skeleton", null);
+
+        RuntimeHitboxLookup lookup = RuntimeHitboxLookup.compile(config);
+
+        assertEquals(0xFF010203, lookup.forEntityType(EntityType.ZOMBIE).opaqueArgb());
+        assertEquals(0xFF010203, lookup.forEntityType(EntityType.SKELETON).opaqueArgb());
+    }
+
     private static HitboxColorConfig style(HitboxPattern pattern, float thickness) {
         HitboxColorConfig style = new HitboxColorConfig();
         style.hitboxPattern = pattern;

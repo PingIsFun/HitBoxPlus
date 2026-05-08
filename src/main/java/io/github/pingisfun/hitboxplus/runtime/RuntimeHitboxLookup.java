@@ -62,8 +62,8 @@ public final class RuntimeHitboxLookup {
         });
 
         config.entityOverrides.forEach((id, override) -> {
-            Identifier identifier = Identifier.parse(id);
-            if (!BuiltInRegistries.ENTITY_TYPE.containsKey(identifier)) {
+            Identifier identifier = Identifier.tryParse(id);
+            if (identifier == null || override == null || !override.enabled || !BuiltInRegistries.ENTITY_TYPE.containsKey(identifier)) {
                 return;
             }
 
