@@ -2,6 +2,7 @@ plugins {
     id("java")
     `maven-publish`
     id("net.fabricmc.fabric-loom")
+    id("me.modmuss50.mod-publish-plugin") version "2.0.0-beta.1"
 }
 
 version = "${property("mod.version")}+${stonecutter.current.version}"
@@ -75,5 +76,23 @@ tasks {
 
     test {
         useJUnitPlatform()
+    }
+}
+
+publishMods {
+    displayName = "${property("mod.name")} ${project.version}"
+    version = property("mod.version") as String
+    changelog = providers.environmentVariable("CHANGELOG")
+    type = STABLE
+    modLoaders.add("fabric")
+    file.set(tasks.named<Jar>("jar").flatMap { it.archiveFile })
+
+    modrinth {
+        accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
+        projectId.set("nbkDyHgy")
+        minecraftVersions.add(stonecutter.current.version)
+        requires("fabric-api")
+        requires("yacl")
+        optional("modmenu")
     }
 }
