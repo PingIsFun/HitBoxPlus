@@ -89,7 +89,7 @@ publishMods {
 
     modrinth {
         accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
-        projectId.set("nbkDyHgy")
+        projectId.set(property("modrinth.id") as String)
         minecraftVersions.add(stonecutter.current.version)
         requires("fabric-api")
         requires("yacl")
