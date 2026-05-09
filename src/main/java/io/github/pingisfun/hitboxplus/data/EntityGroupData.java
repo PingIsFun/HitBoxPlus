@@ -29,7 +29,7 @@ public final class EntityGroupData {
                 "phantom", "parched", "piglin", "piglin_brute", "pillager", "shulker", "silverfish",
                 "skeleton", "slime", "spider", "stray", "vex", "vindicator", "witch", "wither_skeleton",
                 "zoglin", "zombie", "zombie_horse", "zombie_nautilus", "zombie_villager", "zombified_piglin",
-                "ravager", "creaking", "magma_cube");
+                "ravager", "creaking", "creaking_transient", "magma_cube");
         addAll(groups, EntityGroup.BOSS,
                 "ender_dragon", "warden", "wither", "elder_guardian");
         addAll(groups, EntityGroup.PROJECTILE,
@@ -40,7 +40,7 @@ public final class EntityGroupData {
         addAll(groups, EntityGroup.EFFECT,
                 "area_effect_cloud", "evoker_fangs", "lightning_bolt");
         addAll(groups, EntityGroup.VEHICLE,
-                "oak_boat", "oak_chest_boat", "acacia_boat", "acacia_chest_boat", "birch_boat",
+                "boat", "chest_boat", "oak_boat", "oak_chest_boat", "acacia_boat", "acacia_chest_boat", "birch_boat",
                 "birch_chest_boat", "cherry_boat", "cherry_chest_boat", "dark_oak_boat",
                 "dark_oak_chest_boat", "jungle_boat", "jungle_chest_boat", "mangrove_boat",
                 "mangrove_chest_boat", "pale_oak_boat", "pale_oak_chest_boat", "spruce_boat",

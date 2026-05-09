@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//? if >=1.21.3
 @SerialEntry
 public final class HitBoxPlusConfig {
     public int configVersion = 1;

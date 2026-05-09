@@ -488,8 +488,19 @@ public final class HitBoxPlusConfigScreen {
             return color == null ? 0xFFFFFFFF : 0xFF000000 | color;
         }
 
+        //? if >=1.21.3 {
         @Override
         public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+            return handleClick(mouseX, mouseY);
+        }
+        //?} else {
+        /*@Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            return handleClick(mouseX, mouseY);
+        }
+        *///?}
+
+        private boolean handleClick(double mouseX, double mouseY) {
             if (!isAvailable()) {
                 return false;
             }

@@ -8,7 +8,6 @@ import io.github.pingisfun.hitboxplus.runtime.RuntimeHitboxState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexRendering;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -51,19 +50,23 @@ public class EntityRenderDispatcherHitboxMixin {
 
         if (style.showEyeLine()) {
             double eyeHeight = entity.getStandingEyeHeight();
-            Box eyeBox = new Box(
-                    entity.getBoundingBox().minX - entity.getX(),
-                    eyeHeight - 0.01D,
-                    entity.getBoundingBox().minZ - entity.getZ(),
-                    entity.getBoundingBox().maxX - entity.getX(),
-                    eyeHeight + 0.01D,
-                    entity.getBoundingBox().maxZ - entity.getZ()
+            drawPlainBox(
+                    matrices,
+                    vertices,
+                    new Box(
+                            entity.getBoundingBox().minX - entity.getX(),
+                            eyeHeight - 0.01D,
+                            entity.getBoundingBox().minZ - entity.getZ(),
+                            entity.getBoundingBox().maxX - entity.getX(),
+                            eyeHeight + 0.01D,
+                            entity.getBoundingBox().maxZ - entity.getZ()
+                    ),
+                    0xFFFF0000
             );
-            VertexRendering.drawBox(matrices, vertices, eyeBox, 1.0F, 0.0F, 0.0F, 1.0F);
         }
 
         if (style.showLookDirection()) {
-            VertexRendering.drawVector(
+            drawLine(
                     matrices,
                     vertices,
                     new Vector3f(0.0F, entity.getStandingEyeHeight(), 0.0F),
@@ -76,6 +79,14 @@ public class EntityRenderDispatcherHitboxMixin {
     }
 
     private static void drawFullBox(MatrixStack matrices, VertexConsumer vertices, Box box, ResolvedHitboxStyle style) {
+        drawPlainBox(matrices, vertices, box, style.opaqueArgb(), style);
+    }
+
+    private static void drawPlainBox(MatrixStack matrices, VertexConsumer vertices, Box box, int argb) {
+        drawPlainBox(matrices, vertices, box, argb, null);
+    }
+
+    private static void drawPlainBox(MatrixStack matrices, VertexConsumer vertices, Box box, int argb, ResolvedHitboxStyle style) {
         Vec3d minMinMin = new Vec3d(box.minX, box.minY, box.minZ);
         Vec3d minMinMax = new Vec3d(box.minX, box.minY, box.maxZ);
         Vec3d minMaxMin = new Vec3d(box.minX, box.maxY, box.minZ);
@@ -85,18 +96,18 @@ public class EntityRenderDispatcherHitboxMixin {
         Vec3d maxMaxMin = new Vec3d(box.maxX, box.maxY, box.minZ);
         Vec3d maxMaxMax = new Vec3d(box.maxX, box.maxY, box.maxZ);
 
-        drawLine(matrices, vertices, minMinMin, maxMinMin, style);
-        drawLine(matrices, vertices, minMinMax, maxMinMax, style);
-        drawLine(matrices, vertices, minMaxMin, maxMaxMin, style);
-        drawLine(matrices, vertices, minMaxMax, maxMaxMax, style);
-        drawLine(matrices, vertices, minMinMin, minMinMax, style);
-        drawLine(matrices, vertices, maxMinMin, maxMinMax, style);
-        drawLine(matrices, vertices, minMaxMin, minMaxMax, style);
-        drawLine(matrices, vertices, maxMaxMin, maxMaxMax, style);
-        drawLine(matrices, vertices, minMinMin, minMaxMin, style);
-        drawLine(matrices, vertices, maxMinMin, maxMaxMin, style);
-        drawLine(matrices, vertices, minMinMax, minMaxMax, style);
-        drawLine(matrices, vertices, maxMinMax, maxMaxMax, style);
+        drawLine(matrices, vertices, minMinMin, maxMinMin, argb, style);
+        drawLine(matrices, vertices, minMinMax, maxMinMax, argb, style);
+        drawLine(matrices, vertices, minMaxMin, maxMaxMin, argb, style);
+        drawLine(matrices, vertices, minMaxMax, maxMaxMax, argb, style);
+        drawLine(matrices, vertices, minMinMin, minMinMax, argb, style);
+        drawLine(matrices, vertices, maxMinMin, maxMinMax, argb, style);
+        drawLine(matrices, vertices, minMaxMin, minMaxMax, argb, style);
+        drawLine(matrices, vertices, maxMaxMin, maxMaxMax, argb, style);
+        drawLine(matrices, vertices, minMinMin, minMaxMin, argb, style);
+        drawLine(matrices, vertices, maxMinMin, maxMaxMin, argb, style);
+        drawLine(matrices, vertices, minMinMax, minMaxMax, argb, style);
+        drawLine(matrices, vertices, maxMinMax, maxMaxMax, argb, style);
     }
 
     private static void drawPatternedBox(MatrixStack matrices, VertexConsumer vertices, Box box, ResolvedHitboxStyle style) {
@@ -145,18 +156,30 @@ public class EntityRenderDispatcherHitboxMixin {
     }
 
     private static void drawLine(MatrixStack matrices, VertexConsumer vertices, Vec3d start, Vec3d end, ResolvedHitboxStyle style) {
-        int passes = Math.max(1, Math.min(6, Math.round(style.hitboxThickness())));
+        drawLine(matrices, vertices, start, end, style.opaqueArgb(), style);
+    }
+
+    private static void drawLine(MatrixStack matrices, VertexConsumer vertices, Vec3d start, Vec3d end, int argb, ResolvedHitboxStyle style) {
+        int passes = style == null ? 1 : Math.max(1, Math.min(6, Math.round(style.hitboxThickness())));
         double spacing = 0.002D;
         for (int pass = 0; pass < passes; pass++) {
             Vec3d offset = lineOffset(start, end, pass, spacing);
-            VertexRendering.drawVector(
+            drawLine(
                     matrices,
                     vertices,
                     new Vector3f((float) (start.x + offset.x), (float) (start.y + offset.y), (float) (start.z + offset.z)),
                     end.subtract(start),
-                    style.opaqueArgb()
+                    argb
             );
         }
+    }
+
+    private static void drawLine(MatrixStack matrices, VertexConsumer vertices, Vector3f start, Vec3d vector, int argb) {
+        MatrixStack.Entry entry = matrices.peek();
+        vertices.vertex(entry, start).color(argb).normal(entry, (float) vector.x, (float) vector.y, (float) vector.z);
+        vertices.vertex(entry, (float) (start.x() + vector.x), (float) (start.y() + vector.y), (float) (start.z() + vector.z))
+                .color(argb)
+                .normal(entry, (float) vector.x, (float) vector.y, (float) vector.z);
     }
 
     private static Vec3d lineOffset(Vec3d start, Vec3d end, int pass, double spacing) {
