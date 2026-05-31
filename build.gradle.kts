@@ -1,11 +1,13 @@
 plugins {
     id("java")
     `maven-publish`
-    id("fabric-loom")
 }
 
 version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
+val isMinecraft26 = stonecutter.current.version == "26.1"
+
+apply(plugin = if (isMinecraft26) "net.fabricmc.fabric-loom" else "fabric-loom")
 
 repositories {
     fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
@@ -21,21 +23,45 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${stonecutter.current.version}")
-    mappings("net.fabricmc:yarn:${property("deps.yarn")}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+    add("minecraft", "com.mojang:minecraft:${stonecutter.current.version}")
 
-    modImplementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}") {
-        exclude(group = "net.fabricmc.fabric-api")
+    if (isMinecraft26) {
+        add("implementation", "net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+        add("implementation", "net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+        add("implementation", create("maven.modrinth:yacl:${property("yacl_version")}") {
+            exclude(group = "net.fabricmc.fabric-api")
+        })
+        add("implementation", "com.terraformersmc:modmenu:${property("modmenu_version")}")
+        add("runtimeOnly", "me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
+    } else {
+        add("mappings", "net.fabricmc:yarn:${property("deps.yarn")}:v2")
+        add("modImplementation", "net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+        add("modImplementation", "net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+        add("modImplementation", create("dev.isxander:yet-another-config-lib:${property("yacl_version")}") {
+            exclude(group = "net.fabricmc.fabric-api")
+        })
+        add("modImplementation", "com.terraformersmc:modmenu:${property("modmenu_version")}")
+        add("modRuntimeOnly", "me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
     }
-    modImplementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
-    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${property("devauth_version")}")
 
-    testImplementation("net.fabricmc:fabric-loader-junit:${property("deps.fabric_loader")}")
+    add("testImplementation", "net.fabricmc:fabric-loader-junit:${property("deps.fabric_loader")}")
 }
 
-loom {
+sourceSets {
+    main {
+        if (isMinecraft26) {
+            java.setSrcDirs(listOf(rootProject.file("src/26.1/java")))
+            resources.setSrcDirs(listOf(rootProject.file("src/26.1/resources")))
+        }
+    }
+    test {
+        if (isMinecraft26) {
+            java.setSrcDirs(listOf(rootProject.file("src/26.1/test/java")))
+        }
+    }
+}
+
+extensions.configure<net.fabricmc.loom.api.LoomGradleExtensionAPI>("loom") {
     decompilerOptions.named("vineflower") {
         options.put("mark-corresponding-synthetics", "1")
     }
@@ -49,8 +75,8 @@ loom {
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = if (isMinecraft26) JavaVersion.VERSION_25 else JavaVersion.VERSION_21
+    targetCompatibility = if (isMinecraft26) JavaVersion.VERSION_25 else JavaVersion.VERSION_21
 }
 
 tasks {
@@ -70,7 +96,11 @@ tasks {
 
     register<Copy>("buildAndCollect") {
         group = "build"
-        from(remapJar.map { it.archiveFile }, remapSourcesJar.map { it.archiveFile })
+        if (isMinecraft26) {
+            from(jar.map { it.archiveFile }, named<Jar>("sourcesJar").map { it.archiveFile })
+        } else {
+            from(named("remapJar"), named("remapSourcesJar"))
+        }
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }

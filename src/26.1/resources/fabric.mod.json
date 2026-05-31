@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "${description}",
+  "authors": [
+    {
+      "name": "PingIsFun",
+      "email": "pingisfun@gmail.com"
+    }
+  ],
+  "contact": {
+    "sources": "https://github.com/PingIsFun/HitBoxPlus",
+    "issues": "https://github.com/PingIsFun/HitBoxPlus/issues"
+  },
+  "icon": "assets/icon.png",
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.github.pingisfun.hitboxplus.HitBoxPlus"
+    ],
+    "modmenu": [
+      "io.github.pingisfun.hitboxplus.integration.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "hitboxplus.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.5",
+    "minecraft": "${minecraft}",
+    "fabric-api": "*",
+    "yet_another_config_lib_v3": "${yacl}"
+  },
+  "recommends": {
+    "modmenu": "*"
+  }
+}

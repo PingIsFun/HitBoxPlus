@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "io.github.pingisfun.hitboxplus.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "EntityHitboxDebugRendererMixin",
+    "MinecraftClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
