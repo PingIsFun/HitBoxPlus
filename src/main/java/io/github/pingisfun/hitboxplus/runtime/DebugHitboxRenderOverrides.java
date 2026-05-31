@@ -1,4 +1,4 @@
-//? if >=1.21.9 && <1.21.11 {
+//? if >=1.21.5 && <1.21.11 {
 /*package io.github.pingisfun.hitboxplus.runtime;
 
 import net.minecraft.client.render.entity.state.EntityHitbox;

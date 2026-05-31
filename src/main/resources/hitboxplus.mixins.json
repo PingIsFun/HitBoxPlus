@@ -5,8 +5,11 @@
   "client": [
     //? if >=1.21.11
     "EntityHitboxDebugRendererMixin",
-    //? if <1.21.9
+    //? if <1.21.5
     /*"EntityRenderDispatcherHitboxMixin",*/
+    //? if >=1.21.5 && <1.21.9
+    /*"EntityRendererHitboxStateMixin",
+    "EntityRenderDispatcherHitboxStateMixin",*/
     //? if >=1.21.9 && <1.21.11
     /*"EntityRenderManagerHitboxStateMixin",
     "DebugHitboxCommandRendererMixin",*/

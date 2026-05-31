@@ -43,6 +43,7 @@ loom {
     runConfigs.named("client") {
         ideConfigGenerated(true)
         runDir = "../../run"
+        vmArg("-Ddevauth.enabled=${providers.gradleProperty("devauth.enabled").get()}")
     }
 }
 

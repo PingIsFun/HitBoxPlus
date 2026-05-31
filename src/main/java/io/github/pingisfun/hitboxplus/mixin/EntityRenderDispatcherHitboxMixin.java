@@ -1,4 +1,4 @@
-//? if <1.21.9 {
+//? if <1.21.5 {
 /*package io.github.pingisfun.hitboxplus.mixin;
 
 import io.github.pingisfun.hitboxplus.config.HitboxPattern;
