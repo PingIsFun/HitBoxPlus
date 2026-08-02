@@ -48,11 +48,30 @@ public class EntityHitboxDebugRendererMixin {
             return null;
         }
 
+        // --- SPEAR CHECK (Iron, Gold, Diamond, Netherite, Stone, Wood, Copper Spears) ---
+        int colorToUse = style.opaqueArgb(); // Default mod color for normal weapons
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        if (client.player != null && entity != client.player) {
+            if (!client.player.getMainHandStack().isEmpty()) {
+                String itemId = client.player.getMainHandStack().getItem().toString().toLowerCase();
+
+                // Check if holding ANY spear variant
+                boolean isHoldingSpear = itemId.endsWith("spear") || itemId.contains("spear");
+
+                // ONLY turn GREEN if holding a spear AND target is within 4.5 blocks range
+                if (isHoldingSpear && client.player.squaredDistanceTo(entity) <= (4.5 * 4.5)) {
+                    colorToUse = 0xFF00FF00; // Bright Green (ARGB)
+                }
+            }
+        }
+        // ------------------------------------------------------------------
+
         if (style.hitboxPattern() == HitboxPattern.FULL) {
-            return original.call(box, DrawStyle.stroked(style.opaqueArgb(), style.hitboxThickness()));
+            return original.call(box, DrawStyle.stroked(colorToUse, style.hitboxThickness()));
         }
 
-        drawPatternedBox(box, style);
+        drawPatternedBox(box, style, colorToUse);
         return null;
     }
 
@@ -113,7 +132,7 @@ public class EntityHitboxDebugRendererMixin {
         return original.call(start, end, color);
     }
 
-    private static void drawPatternedBox(Box box, ResolvedHitboxStyle style) {
+    private static void drawPatternedBox(Box box, ResolvedHitboxStyle style, int color) {
         Vec3d minMinMin = new Vec3d(box.minX, box.minY, box.minZ);
         Vec3d minMinMax = new Vec3d(box.minX, box.minY, box.maxZ);
         Vec3d minMaxMin = new Vec3d(box.minX, box.maxY, box.minZ);
@@ -123,21 +142,21 @@ public class EntityHitboxDebugRendererMixin {
         Vec3d maxMaxMin = new Vec3d(box.maxX, box.maxY, box.minZ);
         Vec3d maxMaxMax = new Vec3d(box.maxX, box.maxY, box.maxZ);
 
-        drawPatternedEdge(minMinMin, maxMinMin, style);
-        drawPatternedEdge(minMinMax, maxMinMax, style);
-        drawPatternedEdge(minMaxMin, maxMaxMin, style);
-        drawPatternedEdge(minMaxMax, maxMaxMax, style);
-        drawPatternedEdge(minMinMin, minMinMax, style);
-        drawPatternedEdge(maxMinMin, maxMinMax, style);
-        drawPatternedEdge(minMaxMin, minMaxMax, style);
-        drawPatternedEdge(maxMaxMin, maxMaxMax, style);
-        drawPatternedEdge(minMinMin, minMaxMin, style);
-        drawPatternedEdge(maxMinMin, maxMaxMin, style);
-        drawPatternedEdge(minMinMax, minMaxMax, style);
-        drawPatternedEdge(maxMinMax, maxMaxMax, style);
+        drawPatternedEdge(minMinMin, maxMinMin, style, color);
+        drawPatternedEdge(minMinMax, maxMinMax, style, color);
+        drawPatternedEdge(minMaxMin, maxMaxMin, style, color);
+        drawPatternedEdge(minMaxMax, maxMaxMax, style, color);
+        drawPatternedEdge(minMinMin, minMinMax, style, color);
+        drawPatternedEdge(maxMinMin, maxMinMax, style, color);
+        drawPatternedEdge(minMaxMin, minMaxMax, style, color);
+        drawPatternedEdge(maxMaxMin, maxMaxMax, style, color);
+        drawPatternedEdge(minMinMin, minMaxMin, style, color);
+        drawPatternedEdge(maxMinMin, maxMaxMin, style, color);
+        drawPatternedEdge(minMinMax, minMaxMax, style, color);
+        drawPatternedEdge(maxMinMax, maxMaxMax, style, color);
     }
 
-    private static void drawPatternedEdge(Vec3d start, Vec3d end, ResolvedHitboxStyle style) {
+    private static void drawPatternedEdge(Vec3d start, Vec3d end, ResolvedHitboxStyle style, int color) {
         double length = start.distanceTo(end);
         if (length <= 0.0D) {
             return;
@@ -153,7 +172,7 @@ public class EntityHitboxDebugRendererMixin {
             GizmoDrawing.line(
                     start.lerp(end, distance / length),
                     start.lerp(end, segmentEnd / length),
-                    style.opaqueArgb(),
+                    color,
                     style.hitboxThickness()
             );
         }
